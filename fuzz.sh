@@ -8,12 +8,7 @@ unset HTTPS_PROXY
 unset ALL_PROXY
 
 # fuzzing pytorch with SA and two server model
-python -m fuel.fuzz \
---lib pytorch \
-run_fuzz \
---heuristic SA \
---diff_type cpu_compiler \
---max_round 1000 \
+python -m fuel.fuzz --lib pytorch run_fuzz --heuristic SA --diff_type cpu_compiler --max_round 1000
 #(--diff_type hardware cpu_compiler,cuda_compiler)
 
 # ablations

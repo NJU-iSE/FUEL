@@ -26,7 +26,7 @@ class FuzzingCore:
         logger.success(f"-------Current Round:{FeedBack.cur_round}-------")
         logger.success("[gen starts!]")
         
-        filename = os.path.join(File.input_dir, f"{int(time.time() - self.st_time)}.py")
+        filename = os.path.join(File.res_dir, f"{int(time.time() - self.st_time)}.py")
         
         # Get prompts
         gen_prompt, als_prompt_or_text = self.prompt_handler.get_prompts(

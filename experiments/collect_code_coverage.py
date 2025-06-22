@@ -8,7 +8,7 @@ import subprocess as sp
 
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from utils import get_all_pyfiles, read_pyfile, remove_pyfile, write_pyfile
+from .utils import get_all_pyfiles, read_pyfile, remove_pyfile, write_pyfile
 
 from fuel.exec.render_code import get_rendered_code
 from fuel.utils.util import hour_to_second, second_to_hour
@@ -63,6 +63,7 @@ def collect_cov(tech, lib):
             cov_line = [x for x in cov_line.split(" ") if x != ""]
             total_lines = int(cov_line[1]) - int(cov_line[2])
             ACC_COV_LINES.append(total_lines)
+            # print(ACC_COV_LINES)
             break
 
 
@@ -144,7 +145,6 @@ def coverage_report(
             py_code = py_code + "\n" + code_to_compile
         tmp_pyfile = "tmp.py"
         write_pyfile(tmp_pyfile, py_code)
-
         process = sp.Popen(
             [
                 "python",
@@ -159,12 +159,12 @@ def coverage_report(
             stdout=sp.PIPE,
             stderr=sp.PIPE,
         )
-
         try:  # @SHAOYU: I add this exception processing to avoid the timeout (bc some test case are too slow to make the process lock)
             process.communicate(timeout=90)
             if process.returncode == 0:
                 valid_number += 1
             else:
+                # print(process.stderr)
                 print(f"[exception] return code is {process.returncode}")
         except sp.TimeoutExpired:
             print("[timeout]: kill this test case")
@@ -182,7 +182,7 @@ def coverage_report(
     plt.plot(x, y)
     plt.savefig(f"experiments/{tech}_{lib}_coverage.png")
 
-    remove_pyfile("tmp.py")
+    # remove_pyfile("tmp.py")
 
 
 if __name__ == "__main__":

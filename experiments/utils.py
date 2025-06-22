@@ -8,11 +8,11 @@ import numpy as np
 import torch
 import matplotlib
 
-print(plt.style.available)
+# print(plt.style.available)
 # plt.style.use("seaborn-v0_8-white")
 
-matplotlib.rcParams["font.family"] = "Times New Roman"
-matplotlib.rcParams["mathtext.fontset"] = "stix"
+# matplotlib.rcParams["font.family"] = "Times New Roman"
+# matplotlib.rcParams["mathtext.fontset"] = "stix"
 
 
 def list_all_files(folder_path):

@@ -11,10 +11,10 @@ from typing import Dict, Optional
 class _SimpleFileManager:
     """Internal file manager implementation."""
     
-    def __init__(self, root_dir: str, input_dir: str, output_dir: str, lib: str):
+    def __init__(self, root_dir: str, res_dir: str, output_dir: str, lib: str):
         self.lib = lib
         self.root_dir = root_dir
-        self.input_dir = os.path.join(root_dir, input_dir, lib)
+        self.res_dir = os.path.join(root_dir, res_dir, lib)
         self.output_dir = os.path.join(root_dir, output_dir)
         self.test_dir = os.path.join(self.output_dir, lib)
         
@@ -31,9 +31,9 @@ class _SimpleFileManager:
     def _setup_directories(self):
         """Set up directory structure."""
         # Create input directory
-        if Path(self.input_dir).exists():
-            shutil.rmtree(Path(self.input_dir))
-        Path(self.input_dir).mkdir(parents=True)
+        if Path(self.res_dir).exists():
+            shutil.rmtree(Path(self.res_dir))
+        Path(self.res_dir).mkdir(parents=True)
         
         # Create output directory
         if not os.path.exists(self.output_dir):
@@ -76,6 +76,7 @@ class _SimpleFileManager:
         
         # Create coverage configuration file
         with open(self.cov_rc_file, "w") as f:
+            print(self.cov_rc_file)
             f.write("[run]\nsource = ${TESTED_LIB_PATH}")
     
     def _setup_library_path(self):
@@ -172,9 +173,9 @@ class File(metaclass=FileMeta):
     _instance: Optional[_SimpleFileManager] = None
     
     @classmethod
-    def init(cls, root_dir, input_dir, output_dir, lib):
+    def init(cls, root_dir, res_dir, output_dir, lib):
         """Initialize the file manager."""
-        cls._instance = _SimpleFileManager(root_dir, input_dir, output_dir, lib)
+        cls._instance = _SimpleFileManager(root_dir, res_dir, output_dir, lib)
     
     @classmethod
     def _get_instance(cls) -> _SimpleFileManager:

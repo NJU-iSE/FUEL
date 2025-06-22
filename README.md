@@ -60,8 +60,9 @@ FUEL/
 ### 💻 Hardware environment
 
 > [!IMPORTANT]
-> 
+>
 > **General test-bed requirements**
+>
 > - **OS**: Ubuntu >= 20.04;
 > - **CPU**: X86/X64 CPU;
 > - **GPU**: CUDA architecture (V100, A6000, A100, etc.);
@@ -70,11 +71,13 @@ FUEL/
 > - **Network**: Good Network to GitHub and LLM API service;
 
 ### 📦 Software requirement
+
 You need a DeepSeek API key to invoke the DeepSeek API service (of course you can modify configuration in [./config/model.yaml](./config/model.yaml))
 
 ## 🚀 Quick Start
 
 #### 📥 clone the repository
+
 ```bash
 git clone https://github.com/NJU-iSE/FUEL.git
 cd FUEL
@@ -83,33 +86,41 @@ cd FUEL
 #### 🔧 Install dependencies
 
 Firstly, we should install some necessary python dependencies.
-We strongly recommend users use `conda` to manage the python environments.
+We strongly recommend users use `uv` to manage the python environments.
 Please follow the below commands.
 
 ```shell
-conda create -n fuel python=3.12
-conda activate fuel
-pip install -r requirements.txt
+# install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+# sync the dependencies at the root directory
+uv sync
+# activate the environment
+source .venv/bin/activate
 ```
 
 #### ⚡ Install PyTorch nightly version
+
 When fuzzing the systems under tests (SUTs), we use the nightly version, in order to detect new bugs.
 
 Here we use CUDA 12.6 as an example. Please install the nightly version based on your CUDA version. You can get the corresponding commands from https://pytorch.org/
+
 ```shell
-pip3 install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu126
+UV_HTTP_TIMEOUT=180 uv pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu126
 ```
 
 #### 🔑 create API key
+
 In our experiment, we use DeepSeek API to invoke the LLM service. DeepSeek API service is compatible with openai interfaces.
 
 For the below command, you should replace `[YOUR_API_KEY]` with your own DeepSeek API key.
+
 ```shell
 key="[YOUR_API_KEY]"
 echo "$key" > ./config/llm-key.txt
 ```
 
 #### 🏃 Start fuzzing
+
 > [!WARNING]
 > The fuzzing process is time-consuming and may run for many hours to discover meaningful bugs.
 
@@ -121,6 +132,7 @@ python -m fuel.fuzz --lib pytorch run_fuzz \
 ```
 
 **🎛️ Parameter Description:**
+
 - `--lib`: Target deep learning library (`pytorch` or `tensorflow`)
 - `--max_round`: Maximum number of testing rounds
 - `--heuristic`: Heuristic algorithm (`SA`, `Random`, or `None`)
@@ -129,14 +141,17 @@ python -m fuel.fuzz --lib pytorch run_fuzz \
 Note that the fuzzing experiment is really time-consuming. Maybe you should check the results after about ~20hours.
 
 #### 📊 Check results
+
 Please check the generated models in [results/fuel/pytorch](results/fuel/pytorch).
 If you want to get the detected bugs, please check [outputs/bug_reports.txt](outputs/bug_reports.txt).
 
 ### 🔧 Advanced Usage
+
 > [!WARNING]
-> These advanced features are not fully tested and are prone to instability. We will continue improving our artifact. 
+> These advanced features are not fully tested and are prone to instability. We will continue improving our artifact.
 
 #### 🎮 Using Local LLM Models
+
 ```shell
 python -m fuel.fuzz --lib pytorch run_fuzz \
                     --use_local_gen \
@@ -145,6 +160,7 @@ python -m fuel.fuzz --lib pytorch run_fuzz \
 ```
 
 #### 🎯 Custom Operator Selection
+
 ```shell
 python -m fuel.fuzz --lib pytorch run_fuzz \
                     --op_set data/custom_operators.txt \
@@ -153,14 +169,15 @@ python -m fuel.fuzz --lib pytorch run_fuzz \
 ```
 
 #### 📈 Code Coverage Analysis
+
 ```shell
 bash coverage.sh
 ```
 
 ## 🚨 Bug finding (Real-world Contribution)
 
-So far, FUEL has detected **104** previously unknown new bugs, with **93** already confirmed and **47** already fixed. **14** detected bugs were labeled as *high-priority*, and **one** was labeled as 🤯*utmost priority*. **5** detected bugs has been assigned with 🐞*CVE IDs*. The evidence can be viwed in [Google Table](https://docs.google.com/spreadsheets/d/1qVoSdLj_SvfDHrtKMFkR6xVsCj99ABE8Rm9SgljcdGY/edit?gid=959752128#gid=959752128).
+So far, FUEL has detected **104** previously unknown new bugs, with **93** already confirmed and **47** already fixed. **14** detected bugs were labeled as _high-priority_, and **one** was labeled as 🤯*utmost priority*. **5** detected bugs has been assigned with 🐞*CVE IDs*. The evidence can be viwed in [Google Table](https://docs.google.com/spreadsheets/d/1qVoSdLj_SvfDHrtKMFkR6xVsCj99ABE8Rm9SgljcdGY/edit?gid=959752128#gid=959752128).
 
 ## 🙏 Acknowledgement
-We thank [NNSmith](https://github.com/ise-uiuc/nnsmith), [TitanFuzz](https://github.com/ise-uiuc/TitanFuzz), and [WhiteFox](https://github.com/ise-uiuc/WhiteFox) for their admirable open-source spirit, which has largely inspired this project.
 
+We thank [NNSmith](https://github.com/ise-uiuc/nnsmith), [TitanFuzz](https://github.com/ise-uiuc/TitanFuzz), and [WhiteFox](https://github.com/ise-uiuc/WhiteFox) for their admirable open-source spirit, which has largely inspired this project.

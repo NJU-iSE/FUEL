@@ -1,10 +1,8 @@
 import os
-import time
 
 import click
 from loguru import logger
 
-from .difftesting.difftesting import DiffTesting
 from .feedback.feedback import FeedBack
 from .utils.Filer import File
 from .utils.util import load_config_file

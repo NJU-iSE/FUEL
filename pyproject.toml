@@ -1,7 +1,7 @@
 [project]
-name = "fuelagent"
+name = "fuel"
 version = "0.1.0"
-description = "Add your description here"
+description = "A fuzzing system for DL frameworks by using LLMs"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -16,7 +16,6 @@ dependencies = [
     "pre-commit>=4.2.0",
     "pyyaml>=6.0.2",
     "requests>=2.32.3",
-    "torch>=2.7.0",
     "tqdm>=4.67.1",
     "transformers>=4.52.2",
 ]
@@ -37,9 +36,7 @@ include-package-data = true
 [tool.ruff]
 target-version = "py312"
 fix = true
-exclude = [
-    "baselines/"
-]
+exclude = ["baselines/"]
 
 [tool.ruff.lint]
 extend-select = ["I"]

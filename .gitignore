@@ -18,8 +18,8 @@ paper/
 # linhaifeng
 lhf_testing/
 .coverage
-.coveragerc
 tmp.py
+
 
 # specifical for DL models
 *models/
@@ -35,4 +35,5 @@ output/
 results/
 tests/
 *.json
+*.png
 .*coverage

@@ -1,18 +1,20 @@
 import torch
 
-from ..utils.Filer import File
-
-
 def record_exception(exception, version, filename, err_file, total_errs_file):
     exception = str(exception)
     if "from user code:" in exception:
         exception = exception.split("from user code:")[0]
 
-    File.write_file(err_file, f"The exception in {version} mode is \n{exception}")
-    File.write_file(
-        total_errs_file,
-        f"---------------Current test case is {filename} ---------------\nThe {version} mode has bug,it follows up:\n{exception}\n",
-    )
+
+    with open(err_file, "a+", encoding="utf-8") as f:
+        f.write(f"The exception in {version} mode is \n{exception}\n")
+
+    with open(total_errs_file, "a+", encoding="utf-8") as f:
+        f.write(
+            f"---------------Current test case is {filename} ---------------\n"
+            f"The {version} mode has bug, it follows up:\n{exception}\n"
+        )
+
 
 
 def torch_save(res, res_file):

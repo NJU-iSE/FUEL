@@ -15,18 +15,6 @@ inputs: List[torch.tensor]
 
 
 def main(diff_type, code, res_file, version, filename, err_file, total_errs_file, lib):
-    # Initialize File manager to avoid RuntimeError
-    try:
-        # Extract directory paths from file paths
-        output_dir = os.path.dirname(err_file)
-        root_dir = os.getcwd()
-        input_dir = os.path.join(root_dir, "results", "fuel", lib)
-        
-        # Initialize File manager
-        File.init(root_dir, input_dir, output_dir, lib)
-    except Exception as e:
-        print(f"Warning: Failed to initialize File manager: {e}")
-    
     global model, inputs
     torch.manual_seed(0)
     exec(code, globals())
