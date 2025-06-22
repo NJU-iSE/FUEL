@@ -36,4 +36,5 @@ results/
 tests/
 *.json
 *.png
+!assets/FUEL-logo.png
 .*coverage
