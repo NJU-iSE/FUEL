@@ -61,6 +61,6 @@ class PromptHandler:
                 FeedBack.cur_ops = new_ops
                 FeedBack.delta_lines = 0
             gen_prompt = re.sub(r"\{new_ops}", "\n".join(FeedBack.cur_ops), gen_prompt)
-            logger.info(f"current ops is {FeedBack.cur_ops}")
+            logger.info(f"current op(s) is/are {FeedBack.cur_ops}")
         
         return gen_prompt 
