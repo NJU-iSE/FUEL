@@ -2,7 +2,7 @@
   <img src=assets/FUEL-logo.png width=250px >
 </div>
 <div align='center'>
-  <a href="https://arxiv.org"><img src="https://img.shields.io/badge/arXiv-xxxxx-b31b1b?style=for-the-badge"></a>
+  <a href="https://arxiv.org/abs/2506.17642"><img src="https://img.shields.io/badge/arXiv-2506.17642-b31b1b?style=for-the-badge"></a>
   <a href="https://docs.google.com/spreadsheets/d/1qVoSdLj_SvfDHrtKMFkR6xVsCj99ABE8Rm9SgljcdGY/edit?gid=959752128#gid=959752128"><img src=https://img.shields.io/badge/Bug_List-Google_Table-green?style=for-the-badge></a>
   <a href="./LICENSE"><img src=https://img.shields.io/badge/License-Apache_2.0-turquoise?style=for-the-badge ></a>
  </div>
