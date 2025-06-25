@@ -1,5 +1,5 @@
 """
-Configuration management utilities for FueLAgent.
+Configuration management utilities for FUEL.
 
 This module handles automatic detection, downloading, and creation of configuration files.
 """

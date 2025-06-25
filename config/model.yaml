@@ -26,7 +26,8 @@ server:
   model: "deepseek-chat" # @SHAOYU: model name is provided by your API server
   url: "https://api.deepseek.com/beta"  # @SHAOYU: similar with above
   key_file: "config/llm-key.txt"
-  retry_times: 3
+  retry_times: 3  # retry times used to handle the unstable API service
+  timeout: 60  # timeout setting (seconds)
   frequency_penalty: 2  # range from [-2,2]. if set > 0, decreasing the model's likelihood to repeat the same line verbatim.
   max_tokens: 4096  # the max length of the output (Beta maximum 8192)
   presence_penalty: 2  # range from [-2,2]. if set > 0, increasing the model's likelihood to talk about new topics.
