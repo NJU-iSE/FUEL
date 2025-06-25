@@ -3,7 +3,7 @@
 </div>
 <div align='center'>
   <a href="https://arxiv.org/abs/2506.17642"><img src="https://img.shields.io/badge/arXiv-2506.17642-b31b1b?style=for-the-badge"></a>
-  <a href="https://docs.google.com/spreadsheets/d/1qVoSdLj_SvfDHrtKMFkR6xVsCj99ABE8Rm9SgljcdGY/edit?gid=959752128#gid=959752128"><img src=https://img.shields.io/badge/Bug_List-Google_Table-green?style=for-the-badge></a>
+  <a href="https://docs.google.com/spreadsheets/d/1qVoSdLj_SvfDHrtKMFkR6xVsCj99ABE8Rm9SgljcdGY/edit?gid=959752128#gid=959752128"><img src=https://img.shields.io/badge/Bug_List-Google_Sheet-green?style=for-the-badge></a>
   <a href="./LICENSE"><img src=https://img.shields.io/badge/License-Apache_2.0-turquoise?style=for-the-badge ></a>
  </div>
 
@@ -176,7 +176,7 @@ bash coverage.sh
 
 ## 🚨 Bug finding (Real-world Contribution)
 
-So far, FUEL has detected **104** previously unknown new bugs, with **93** already confirmed and **47** already fixed. **14** detected bugs were labeled as *high-priority*, and **one** was labeled as 🤯*utmost priority*. **5** detected bugs has been assigned with 🐞*CVE IDs*. The evidence can be viwed in [Google Table](https://docs.google.com/spreadsheets/d/1qVoSdLj_SvfDHrtKMFkR6xVsCj99ABE8Rm9SgljcdGY/edit?gid=959752128#gid=959752128).
+So far, FUEL has detected **104** previously unknown new bugs, with **93** already confirmed and **47** already fixed. **14** detected bugs were labeled as *high-priority*, and **one** was labeled as 🤯*utmost priority*. **5** detected bugs has been assigned with 🐞*CVE IDs*. The evidence can be viwed in [Google Sheet](https://docs.google.com/spreadsheets/d/1qVoSdLj_SvfDHrtKMFkR6xVsCj99ABE8Rm9SgljcdGY/edit?gid=959752128#gid=959752128).
 
 ## 📡 Contact
 
