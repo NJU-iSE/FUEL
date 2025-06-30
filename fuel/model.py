@@ -10,7 +10,7 @@ try:
     os.environ["VLLM_USE_V1"] = "1"
     from vllm import LLM, SamplingParams
 except ImportError:
-    logger.error(
+    logger.warning(
         "currently, vllm still can't be install with nightly pytorch, refer to https://github.com/vllm-project/vllm/issues/9180"
     )
 import os
@@ -157,7 +157,6 @@ class AlsServerModel(ServerModel):
         super().__init__(config, **kwargs)
 
     def analyze(self, role, prompt, **kwargs):
-        # FIXME@SHAOYU: some API service is very unstable (such as DeepSeek), we need to add some fault tolerance.
         retry_times = self.config["retry_times"]
         cnt = 0
         base_delay = 1  # Base delay time (seconds)

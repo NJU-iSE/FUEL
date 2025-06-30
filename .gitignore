@@ -33,6 +33,7 @@ torch-exec/
 
 # Large files: output and results
 output/
+output_bk/
 results/
 tests/
 *.json
