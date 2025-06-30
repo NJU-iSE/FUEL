@@ -19,10 +19,10 @@
 
 - **🤖 Intelligent Code Generation**: Leverages Large Language Models to generate complex and effective deep learning model test cases
 - **🔄 Feedback-Driven**: Smart feedback mechanism based on execution results and code coverage to continuously optimize test generation strategies via LLMs
-- **🔧 Program Self-Repair**: Automatically distinguishes between framework bugs and invalid test cases, then intelligently repairs invalid models using LLM-guided analysis
+- **❤️‍🩹 Program Self-Repair**: Automatically distinguishes between framework bugs and invalid test cases, then intelligently repairs invalid models using LLM-guided analysis
 - **📊 Heuristic Search**: Integrates heuristic algorithms like Simulated Annealing (SA) for intelligent API operator selection
-- **🔍 Differential Testing**: Supports multiple differential testing modes (hardware differences, compiler differences, etc.)
-- **📈 Efficient Detection**: Successfully discovered 104 new bugs, with 93 confirmed and 47 fixed
+- **🔬 Differential Testing**: Supports multiple differential testing modes (hardware differences, compiler differences, etc.)
+- **🔍 Efficient Detection**: Successfully discovered 104 new bugs, with 93 confirmed and 47 fixed
 
 ### 🛠️ Key Features
 
@@ -131,7 +131,7 @@ python -m fuel.fuzz --lib pytorch run_fuzz \
                     --diff_type cpu_compiler
 ```
 
-**🎛️ Parameter Description:**
+**📃 Parameter Description:**
 
 - `--lib`: Target deep learning library (`pytorch` or `tensorflow`)
 - `--max_round`: Maximum number of testing rounds
@@ -140,7 +140,7 @@ python -m fuel.fuzz --lib pytorch run_fuzz \
 
 Note that the fuzzing experiment is really time-consuming. Maybe you should check the results after about ~20hours.
 
-#### 📊 Check results
+#### 🖨️ Check results
 
 Please check the generated models in [results/fuel/pytorch](results/fuel/pytorch).
 If you want to get the detected bugs, please check [outputs/bug_reports.txt](outputs/bug_reports.txt).
@@ -159,7 +159,7 @@ python -m fuel.fuzz --lib pytorch run_fuzz \
                     --heuristic SA
 ```
 
-#### 🎯 Custom Operator Selection
+#### 👊 Custom Operator Selection
 
 ```shell
 python -m fuel.fuzz --lib pytorch run_fuzz \
