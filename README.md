@@ -3,7 +3,7 @@
 </div>
 <div align='center'>
   <a href="https://arxiv.org/abs/2506.17642"><img src="https://img.shields.io/badge/arXiv-2506.17642-b31b1b?style=for-the-badge"></a>
-  <a href="https://docs.google.com/spreadsheets/d/1qVoSdLj_SvfDHrtKMFkR6xVsCj99ABE8Rm9SgljcdGY/edit?gid=959752128#gid=959752128"><img src=https://img.shields.io/badge/Bug_List-Google_Sheet-green?style=for-the-badge></a>
+  <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vR4DAQkCsmxC2EoBXH0a9-X9_F9HcK4TnE4Z7mBo6JyH6r6O6RZ9k0pvJ-d9VVREqNNEzl7BEnZqq2S/pubhtml"><img src=https://img.shields.io/badge/Bug_List-Google_Sheet-green?style=for-the-badge></a>
   <a href="./LICENSE"><img src=https://img.shields.io/badge/License-Apache_2.0-turquoise?style=for-the-badge ></a>
  </div>
 
