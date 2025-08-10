@@ -6,7 +6,7 @@ import ast
 from typing import List
 
 import astunparse
-
+from loguru import logger
 
 class MultilineAssignTransformer(ast.NodeTransformer):
     def visit_Assign(self, node):
@@ -175,22 +175,25 @@ class CodeParser:
 
                         # test whether is tensor
                         try:
+                            namespace = globals().copy()
                             if self.lib_name == "tensorflow":
                                 import tensorflow as tf  # noqa
+                                namespace["tf"] = tf
                             elif self.lib_name == "pytorch":
                                 import torch  # noqa
+                                namespace["torch"] = torch
                             else:
                                 raise Exception("Unsupported library")
-                            # print(init_code)
-                            exec(init_code)
-                            if self.is_input(eval(tgt)):
+                            # logger.debug(f"init_code: {init_code}")
+                            exec(init_code,namespace)
+                            if self.is_input(eval(tgt,namespace)):
                                 inputs.append(tgt)
                                 input_init_code += init_code + "\n"
                             elif tgt in class_forward_args:
                                 inputs.append(tgt)
                                 input_init_code += init_code + "\n"
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            logger.error(f"Error get input tensor: {e}")
                 elif isinstance(value, ast.Constant) or isinstance(value, ast.UnaryOp):
                     # print(ast.unparse(node))
                     class_code += ast.unparse(node) + "\n"
