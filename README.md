@@ -110,7 +110,7 @@ UV_HTTP_TIMEOUT=180 uv pip install --pre torch torchvision torchaudio --index-ur
 
 #### 🔑 create API key
 
-In our experiment, we use DeepSeek API to invoke the LLM service. DeepSeek API service is compatible with openai interfaces.
+In our experiment, we use [DeepSeek API](https://platform.deepseek.com/api_keys) to invoke the LLM service. DeepSeek API service is compatible with openai interfaces.
 
 For the below command, you should replace `[YOUR_API_KEY]` with your own DeepSeek API key.
 
@@ -142,8 +142,8 @@ Note that the fuzzing experiment is really time-consuming. Maybe you should chec
 
 #### 🖨️ Check results
 
-Please check the generated models in [results/fuel/pytorch](results/fuel/pytorch).
-If you want to get the detected bugs, please check [outputs/bug_reports.txt](outputs/bug_reports.txt).
+Please check the generated models in `results/fuel/pytorch`.
+If you want to get the detected bugs, please check `outputs/bug_reports.txt`.
 
 ### 🔧 Advanced Usage
 
