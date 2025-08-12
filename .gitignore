@@ -15,6 +15,7 @@ config/llm-key.txt
 bug_repro.py
 exp.*
 paper/
+tmp__ysy/*
 
 # linhaifeng
 lhf_testing/

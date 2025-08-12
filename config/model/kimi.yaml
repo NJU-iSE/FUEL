@@ -1,6 +1,6 @@
 method: "remote"
 config:
-  model: "kimi-latest" # @SHAOYU: kimi-k2-preview-0711 does not supprot `stop` parameter
+  model: "kimi-k2-turbo-preview" # @SHAOYU: kimi-k2-preview-0711 does not supprot `stop` parameter
   url: "https://api.moonshot.cn/v1"  # @SHAOYU: similar with above
   key_file: "config/kimi-key.txt"
   retry_times: 5  # retry times used to handle the unstable API service

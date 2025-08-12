@@ -8,8 +8,17 @@ unset HTTPS_PROXY
 unset ALL_PROXY
 
 # fuzzing pytorch with FASA and two server model
-python -m fuel.fuzz --lib pytorch run_fuzz --heuristic FASA --diff_type cpu_compiler --max_round 1000
-#(--diff_type hardware cpu_compiler,cuda_compiler)
+python -m fuel.fuzz \
+--lib pytorch \
+--als_model_config config/model/kimi.yaml \
+--als_prompt_config config/als_prompt \
+--gen_model_config config/model/kimi.yaml \
+--gen_prompt_config config/gen_prompt \
+run_fuzz \
+--heuristic FASA \
+--diff_type cpu_compiler \
+--max_round 1000 \
+
 
 # ablations
 

@@ -99,11 +99,18 @@ class RemoteModel(Model):
         ]
 
         # @SHAOYU: Different LLM API service providers have different machenism to be forced to generate code.
-        # We need to add different processing ways for different providers.
+        # We use different processing ways for different providers.
         if code_gen:
-            messages.append(
-                {"role": "assistant", "content": "```python\n", "prefix": True}
-            )
+            if "deepseek" in self.config["model"]:
+                messages.append(
+                    {"role": "assistant", "content": "```python\n", "prefix": True}
+                )
+            elif "kimi" in self.config["model"]:
+                messages.append(
+                    {"role": "assistant", "content": "```python\n", "partial": True}
+                )
+            else:
+                raise NotImplementedError(f"Unsupported RemoteModel: {self.config['model']}")
 
         try:
             response = self.client.chat.completions.create(
@@ -163,7 +170,7 @@ class AlsRemoteModel(RemoteModel):
     def analyze(self, role, prompt, **kwargs):
         retry_times = self.config["retry_times"]
         cnt = 0
-        base_delay = 1  # Base delay time (seconds)
+        base_delay = 5  # Base delay time (seconds)
         
         while cnt < retry_times:
             logger.info(f"Attempting analyze API call (attempt {cnt + 1}/{retry_times})")
@@ -193,7 +200,7 @@ class GenRemoteModel(RemoteModel):
     def generate(self, role, prompt, **kwargs):
         retry_times = self.config["retry_times"]
         cnt = 0
-        base_delay = 1  # Base delay time (seconds)
+        base_delay = 5  # Base delay time (seconds)
         
         while cnt < retry_times:
             logger.info(f"Attempting generate API call (attempt {cnt + 1}/{retry_times})")
