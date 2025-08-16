@@ -11,18 +11,18 @@
 
 ## 📋 Introduction
 
-**FUEL** (**F**eedback-driven f**U**zzing for d**E**ep **L**earning frameworks via LLMs) is an advanced deep learning (DL) framework fuzzing tool designed to detect bugs in mainstream DL frameworks such as [PyTorch](https://github.com/pytorch/pytorch) and [TensorFlow](https://github.com/tensorflow/tensorflow). FUEL combines the powerful generation capabilities of Large Language Models (LLMs) with feedback-driven heuristic search algorithms to efficiently generate high-quality test cases and discover potential bugs in DL frameworks. Additionally, FUEL features intelligent program self-repair capabilities that automatically distinguish between actual framework bugs and invalid test cases, enabling continuous testing optimization.
+**FUEL** (**F**eedback-driven f**U**zzing for d**E**ep **L**earning frameworks via LLMs) is an advanced deep learning (DL) framework fuzzing tool designed to detect bugs in mainstream DL frameworks such as [PyTorch](https://github.com/pytorch/pytorch) and [TensorFlow](https://github.com/tensorflow/tensorflow). FUEL combines the powerful **generation LLM** with the **analysis LLM** to efficiently generate high-quality test cases and discover potential bugs in DL frameworks. Additionally, FUEL features a **feedback-aware simulated annealing** algorithm and **program self-repair** strategy, improving model *diversity* and *validity*, respectively.
 
 ## 🎯 Why FUEL?
 
 ### 🔥 Core Advantages
 
 - **🤖 Intelligent Code Generation**: Leverages Large Language Models to generate complex and effective deep learning model test cases
-- **🔄 Feedback-Driven**: Smart feedback mechanism based on execution results and code coverage to continuously optimize test generation strategies via LLMs
+- **🔄 Feedback-Driven**: Smart feedback mechanism based on code coverage, bug reports, and exception logs to continuously optimize test generation strategies via LLMs
 - **❤️‍🩹 Program Self-Repair**: Automatically distinguishes between framework bugs and invalid test cases, then intelligently repairs invalid models using LLM-guided analysis
 - **📊 Heuristic Search**: Integrates heuristic algorithms like Feedback-Aware Simulated Annealing (FASA) for intelligent API operator selection
 - **🔬 Differential Testing**: Supports multiple differential testing modes (hardware differences, compiler differences, etc.)
-- **🔍 Efficient Detection**: Successfully discovered 104 new bugs, with 93 confirmed and 47 fixed
+- **🔍 Efficient Detection**: Successfully discovered 104 new bugs, with 93 confirmed and 49 fixed
 
 ### 🛠️ Key Features
 
@@ -41,7 +41,7 @@ FUEL/
 │   ├── als_prompt/      # Analysis prompt configurations
 │   ├── gen_prompt/      # Generation prompt configurations
 │   ├── heuristic.yaml   # Heuristic algorithm configuration
-│   └── model.yaml       # LLM model configuration
+│   └── model/           # LLM model configuration
 ├── 📁 data/             # Data files
 │   ├── pytorch_apis.txt # PyTorch API list
 │   └── tensorflow_apis.txt # TensorFlow API list
@@ -72,7 +72,7 @@ FUEL/
 
 ### 📦 Software requirement
 
-You need a DeepSeek API key to invoke the DeepSeek API service (of course you can modify configuration in [./config/model.yaml](./config/model.yaml))
+You need a DeepSeek API key to invoke the DeepSeek API service (of course, you can modify the configuration in [./config/model.yaml](./config/model.yaml))
 
 ## 🚀 Quick Start
 
@@ -85,9 +85,9 @@ cd FUEL
 
 #### 🔧 Install dependencies
 
-Firstly, we should install some necessary python dependencies.
-We strongly recommend users use `uv` to manage the python environments.
-Please follow the below commands.
+Firstly, we should install some necessary Python dependencies.
+We strongly recommend users use `uv` to manage the Python environments.
+Please follow the commands below.
 
 ```shell
 # install uv
@@ -176,7 +176,7 @@ bash coverage.sh
 
 ## 🚨 Bug finding (Real-world Contribution)
 
-So far, FUEL has detected **104** previously unknown new bugs, with **93** already confirmed and **47** already fixed. **14** detected bugs were labeled as *high-priority*, and **one** was labeled as 🤯*utmost priority*. **5** detected bugs has been assigned with 🐞*CVE IDs*. The evidence can be viwed in [Google Sheet](https://docs.google.com/spreadsheets/d/1qVoSdLj_SvfDHrtKMFkR6xVsCj99ABE8Rm9SgljcdGY/edit?gid=959752128#gid=959752128).
+So far, FUEL has detected **104** previously unknown new 🐛bugs, with **93** already 🥰confirmed and **49** already 🥳fixed. **14** detected bugs were labeled as 🚨*high-priority*, and **one** was labeled as 🤯*utmost priority*. **5** detected bugs has been assigned 🐞*CVE IDs*. The evidence can be found in [Google Sheet](https://docs.google.com/spreadsheets/d/e/2PACX-1vR4DAQkCsmxC2EoBXH0a9-X9_F9HcK4TnE4Z7mBo6JyH6r6O6RZ9k0pvJ-d9VVREqNNEzl7BEnZqq2S/pubhtml).
 
 ## 📡 Contact
 
@@ -186,4 +186,4 @@ So far, FUEL has detected **104** previously unknown new bugs, with **93** alrea
 
 ## 🙏 Acknowledgement
 
-We thank [NNSmith](https://github.com/ise-uiuc/nnsmith), [TitanFuzz](https://github.com/ise-uiuc/TitanFuzz), and [WhiteFox](https://github.com/ise-uiuc/WhiteFox) for their admirable open-source spirit, which has largely inspired this project.
+We thank [NNSmith](https://github.com/ise-uiuc/nnsmith), [TitanFuzz](https://github.com/ise-uiuc/TitanFuzz), and [WhiteFox](https://github.com/ise-uiuc/WhiteFox) for their admirable open-source spirit, which has largely inspired this work.
