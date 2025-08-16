@@ -86,7 +86,7 @@ cd FUEL
 #### 🔧 Install dependencies
 
 Firstly, we should install some necessary Python dependencies.
-We strongly recommend users use `uv` to manage the Python environments.
+We strongly recommend users use [uv](https://github.com/astral-sh/uv) to manage the Python environments.
 Please follow the commands below.
 
 ```shell
