@@ -176,7 +176,7 @@ bash coverage.sh
 
 ## 🚨 Bug finding (Real-world Contribution)
 
-So far, FUEL has detected **104** previously unknown new 🐛bugs, with **93** already 🥰confirmed and **49** already 🥳fixed. **14** detected bugs were labeled as 🚨*high-priority*, and **one** was labeled as 🤯*utmost priority*. **5** detected bugs has been assigned 🐞*CVE IDs*. The evidence can be found in [Google Sheet](https://docs.google.com/spreadsheets/d/e/2PACX-1vR4DAQkCsmxC2EoBXH0a9-X9_F9HcK4TnE4Z7mBo6JyH6r6O6RZ9k0pvJ-d9VVREqNNEzl7BEnZqq2S/pubhtml).
+So far, FUEL has detected **104** previously unknown new 🐛bugs, with **93** already 🥰confirmed and **49** already 🥳fixed. **14** detected bugs were labeled as 🚨*high-priority*, and **one** was labeled as 🤯*utmost priority*. **14** detected bugs has been assigned 🐞*CVE IDs*. The evidence can be found in [Google Sheet](https://docs.google.com/spreadsheets/d/e/2PACX-1vR4DAQkCsmxC2EoBXH0a9-X9_F9HcK4TnE4Z7mBo6JyH6r6O6RZ9k0pvJ-d9VVREqNNEzl7BEnZqq2S/pubhtml).
 
 ## 📡 Contact
 
