@@ -15,7 +15,7 @@ from fuel.utils.util import hour_to_second, second_to_hour
 
 CPU_EXEC = """
 model(*inputs)
-c_model = torch.compile(model)
+c_model = torch.compile(model, dynamic=True)
 c_model(*inputs)
 """
 
@@ -24,7 +24,7 @@ from experiments.torch_utils import model_to_cuda
 
 model, inputs = model_to_cuda(model, inputs)
 model(*inputs)
-c_model = torch.compile(model)
+c_model = torch.compile(model, dynamic=True)
 c_model(*inputs)
 """
 

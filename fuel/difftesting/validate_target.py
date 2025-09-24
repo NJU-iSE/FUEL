@@ -30,7 +30,7 @@ def main(diff_type, code, res_file, version, filename, err_file, total_errs_file
 
     elif diff_type == "cpu_compiler":
         try:
-            model = torch.compile(model)
+            model = torch.compile(model, dynamic=True)
             print(f"<-- {version} transfer successfully -->")
         except Exception as e:
             print(f"<-- {version} transfer failed -->")
@@ -39,7 +39,7 @@ def main(diff_type, code, res_file, version, filename, err_file, total_errs_file
     elif diff_type == "cuda_compiler":
         model, inputs = to_cuda(model, inputs)
         try:
-            model = torch.compile(model)
+            model = torch.compile(model, dynamic=True)
             print(f"<-- {version} transfer successfully -->")
         except Exception as e:
             print(f"<-- {version} transfer failed -->")
