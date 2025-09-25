@@ -111,4 +111,4 @@ class FASA:
 
     @staticmethod
     def cal_cov_count(x):
-        return 1 - math.exp(-x * 0.001) 
+        return 1 - math.exp(-x * 0.001)

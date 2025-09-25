@@ -1,6 +1,5 @@
 import re
 from os import PathLike
-import os
 from typing import Union
 
 import yaml

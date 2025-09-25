@@ -7,7 +7,6 @@ import torch
 from ..exec.utils import to_cuda
 from .common import record_exception, torch_save
 from .oracle import OracleType
-from ..utils.Filer import File
 
 os.environ["PYTHONWARNINGS"] = "ignore"
 model: torch.nn.Module

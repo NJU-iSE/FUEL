@@ -4,12 +4,12 @@ import click
 from loguru import logger
 
 from .feedback.feedback import FeedBack
-from .utils.Filer import File
-from .utils.util import load_config_file
 from .utils.config_manager import validate_all_configs
+from .utils.Filer import File
+from .utils.fuzzing_core import FuzzingCore
 from .utils.model_manager import ModelManager
 from .utils.prompt_handler import PromptHandler
-from .utils.fuzzing_core import FuzzingCore
+from .utils.util import load_config_file
 
 ROOT_DIR = os.getcwd()
 
@@ -31,7 +31,7 @@ ROOT_DIR = os.getcwd()
 )
 @click.option(
     "als_model_config",
-    "--als_model_config", 
+    "--als_model_config",
     type=str,
     default="config/model/deepseek.yaml",
     help="Path to the analysis model configuration file",
@@ -58,7 +58,15 @@ ROOT_DIR = os.getcwd()
     help="Path to the heuristic configuration file",
 )
 @click.pass_context
-def cli(ctx, lib, gen_model_config, als_model_config, gen_prompt_config, als_prompt_config, heuristic_config):
+def cli(
+    ctx,
+    lib,
+    gen_model_config,
+    als_model_config,
+    gen_prompt_config,
+    als_prompt_config,
+    heuristic_config,
+):
     ctx.ensure_object(dict)
     ctx.obj["lib"] = lib
 
@@ -68,16 +76,16 @@ def cli(ctx, lib, gen_model_config, als_model_config, gen_prompt_config, als_pro
             lib=lib,
             gen_prompt_config=gen_prompt_config,
             als_prompt_config=als_prompt_config,
-            heuristic_config=heuristic_config
+            heuristic_config=heuristic_config,
         )
-        
+
         # Store validated config paths
         ctx.obj.update(validated_configs)
-        
+
         # Store model config paths
         ctx.obj["GEN_MODEL_CONFIG"] = gen_model_config
         ctx.obj["ALS_MODEL_CONFIG"] = als_model_config
-        
+
     except Exception as e:
         logger.error(f"Failed to setup configuration files: {e}")
         raise click.ClickException(f"Configuration setup failed: {e}")
@@ -146,13 +154,15 @@ def run_fuzz(
 ):
     """Execute fuzzing test"""
     lib = ctx.obj["lib"]
-    
+
     # Load configuration files
     gen_prompt_config, als_prompt_config = (
         load_config_file(
             ctx.obj["GEN_PROMPT_CONFIG"]
             if heuristic != "None"
-            else ctx.obj["GEN_PROMPT_CONFIG"].replace("/", "/ablations/wo_heuristic/", 1)
+            else ctx.obj["GEN_PROMPT_CONFIG"].replace(
+                "/", "/ablations/wo_heuristic/", 1
+            )
         ),
         load_config_file(ctx.obj["ALS_PROMPT_CONFIG"]),
     )
@@ -160,9 +170,9 @@ def run_fuzz(
     # Setup models
     gen_model, als_model = ModelManager.setup_models(
         gen_model_config=ctx.obj["GEN_MODEL_CONFIG"],
-        als_model_config=ctx.obj["ALS_MODEL_CONFIG"]
+        als_model_config=ctx.obj["ALS_MODEL_CONFIG"],
     )
-    
+
     # Setup heuristic algorithm
     heuristic_instance = ModelManager.setup_heuristic(
         heuristic, ctx.obj["HEURISTIC_CONFIG"], op_set
@@ -172,7 +182,7 @@ def run_fuzz(
     diff_type = diff_type.replace("\n", "").replace(" ", "").replace("\r", "")
     FeedBack.init(lib, diff_type)
     File.init(ROOT_DIR, res_dir, output_dir, lib)
-    
+
     # Create utility class instances
     prompt_handler = PromptHandler(gen_prompt_config, als_prompt_config)
     fuzzing_core = FuzzingCore(gen_model, als_model, prompt_handler, lib)
@@ -183,19 +193,19 @@ def run_fuzz(
 
     # Start fuzzing
     logger.success("fuzzing starts!\n")
-    
+
     while FeedBack.cur_round < max_round:
         # Execute single round test
         file_path = fuzzing_core.execute_single_round(
             feedback_data, heuristic_instance, op_nums, diff_type
         )
-        
+
         # Handle execution results
         flag = fuzzing_core.handle_execution_results(file_path, flag)
-        
+
         # Process feedback
         feedback_data = fuzzing_core.process_feedback(file_path)
-        
+
         # Increment round
         FeedBack.cur_round += 1
 

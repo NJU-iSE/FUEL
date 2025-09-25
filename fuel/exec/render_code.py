@@ -8,6 +8,7 @@ from typing import List
 import astunparse
 from loguru import logger
 
+
 class MultilineAssignTransformer(ast.NodeTransformer):
     def visit_Assign(self, node):
         if isinstance(node.targets[0], ast.Tuple) and isinstance(node.value, ast.Tuple):
@@ -52,8 +53,9 @@ class CodeParser:
                 "import torch as th\nimport torch.linalg as la\n"
                 "from torch.nn import Parameter\n"
                 "import torch.linalg as linalg\n"
-                "from torch._inductor import config\nconfig.fallback_random = True\n"  # ADD@SHAOYU: deterministic setting
-                "torch.set_grad_enabled(False)\n"  # ADD@SHAOYU: disable the grad
+                "from torch._inductor import config\nconfig.fallback_random = True\n"  # Deterministic setting
+                "torch.set_grad_enabled(False)\n"  # Disable the grad TODO@SHAOYU: in the future, we should consider supporting the grad operators
+                "torch._dynamo.config.capture_scalar_outputs = True\n"  # Capture scalar outputs
             )
             self._init_code = "{} = torch.randn(1, 1, 1)\n"
         elif lib_name == "tensorflow":
@@ -178,15 +180,17 @@ class CodeParser:
                             namespace = globals().copy()
                             if self.lib_name == "tensorflow":
                                 import tensorflow as tf  # noqa
+
                                 namespace["tf"] = tf
                             elif self.lib_name == "pytorch":
                                 import torch  # noqa
+
                                 namespace["torch"] = torch
                             else:
                                 raise Exception("Unsupported library")
                             # logger.debug(f"init_code: {init_code}")
-                            exec(init_code,namespace)
-                            if self.is_input(eval(tgt,namespace)):
+                            exec(init_code, namespace)
+                            if self.is_input(eval(tgt, namespace)):
                                 inputs.append(tgt)
                                 input_init_code += init_code + "\n"
                             elif tgt in class_forward_args:

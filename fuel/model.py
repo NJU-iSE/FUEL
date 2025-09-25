@@ -1,9 +1,9 @@
 import os
+import time
 from abc import abstractmethod
 from pathlib import Path
-import time
-import yaml
 
+import yaml
 from loguru import logger
 from openai import OpenAI
 
@@ -51,37 +51,37 @@ class RemoteModel(Model):
         self.config = config
         # Add timeout setting support
         timeout = self.config.get("timeout", 30)  # Default 30 seconds timeout
-        
+
         self.client = OpenAI(
             api_key=Path(self.config["key_file"]).read_text().strip(),
             base_url=self.config["url"],
             timeout=timeout,
         )
-        
+
         # Verify connection and network configuration
         self._verify_connection()
 
     def _verify_connection(self):
         """Verify network connection and API configuration"""
         import requests
-        
+
         try:
             # Check basic network connection
             logger.info("Checking network connection...")
-            response = requests.get(self.config["url"].replace("/beta", ""), timeout=10)
+            requests.get(self.config["url"].replace("/beta", ""), timeout=10)
             logger.success("Network connection is working")
-            
+
             # Check proxy settings
             proxy_info = []
-            for proxy_var in ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy']:
+            for proxy_var in ["HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy"]:
                 if os.environ.get(proxy_var):
                     proxy_info.append(f"{proxy_var}={os.environ.get(proxy_var)}")
-            
+
             if proxy_info:
                 logger.info(f"Detected proxy settings: {', '.join(proxy_info)}")
             else:
                 logger.info("No proxy settings detected")
-                
+
         except Exception as e:
             logger.warning(f"Network check failed: {e}")
             logger.warning("Please check your network connection and proxy settings")
@@ -110,7 +110,9 @@ class RemoteModel(Model):
                     {"role": "assistant", "content": "```python\n", "partial": True}
                 )
             else:
-                raise NotImplementedError(f"Unsupported RemoteModel: {self.config['model']}")
+                raise NotImplementedError(
+                    f"Unsupported RemoteModel: {self.config['model']}"
+                )
 
         try:
             response = self.client.chat.completions.create(
@@ -171,10 +173,12 @@ class AlsRemoteModel(RemoteModel):
         retry_times = self.config["retry_times"]
         cnt = 0
         base_delay = 5  # Base delay time (seconds)
-        
+
         while cnt < retry_times:
-            logger.info(f"Attempting analyze API call (attempt {cnt + 1}/{retry_times})")
-            
+            logger.info(
+                f"Attempting analyze API call (attempt {cnt + 1}/{retry_times})"
+            )
+
             gen_text = self.get_outputs(role, prompt, False)
             if gen_text is not None:
                 logger.success(f"API call succeeded (attempt {cnt + 1})")
@@ -186,7 +190,7 @@ class AlsRemoteModel(RemoteModel):
                     delay = base_delay * (2 ** (cnt - 1))
                     logger.warning(f"API call failed, retrying in {delay} seconds...")
                     time.sleep(delay)
-        
+
         logger.error(f"API service failed after {retry_times} retries")
         raise Exception(
             f"API service is down after {retry_times} times of retry when analyzing"
@@ -201,10 +205,12 @@ class GenRemoteModel(RemoteModel):
         retry_times = self.config["retry_times"]
         cnt = 0
         base_delay = 5  # Base delay time (seconds)
-        
+
         while cnt < retry_times:
-            logger.info(f"Attempting generate API call (attempt {cnt + 1}/{retry_times})")
-            
+            logger.info(
+                f"Attempting generate API call (attempt {cnt + 1}/{retry_times})"
+            )
+
             gen_text = self.get_outputs(role, prompt, True)
             if gen_text is not None:
                 logger.success(f"API call succeeded (attempt {cnt + 1})")
@@ -216,7 +222,7 @@ class GenRemoteModel(RemoteModel):
                     delay = base_delay * (2 ** (cnt - 1))
                     logger.warning(f"API call failed, retrying in {delay} seconds...")
                     time.sleep(delay)
-        
+
         logger.error(f"API service failed after {retry_times} retries")
         raise Exception(
             f"API service is down after {retry_times} times of retry when generating"
@@ -255,67 +261,71 @@ class AlsLocalModel(LocalModel):  # TODO@SHAOYU: add the analyze function for al
 def load_model_from_config(config_path):
     """
     Load model instances from configuration file
-    
+
     Args:
         config_path: Path to configuration file
-        
+
     Returns:
         tuple: (gen_model, als_model) corresponding model instances
     """
-    with open(config_path, 'r', encoding='utf-8') as f:
+    with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
-    
-    method = config.get('method', 'remote')
-    model_config = config.get('config', {})
-    
-    if method == 'local':
+
+    method = config.get("method", "remote")
+    model_config = config.get("config", {})
+
+    if method == "local":
         gen_model = GenLocalModel(model_config)
         als_model = AlsLocalModel(model_config)
         logger.info(f"[LOCAL] Loaded model: {model_config.get('model', 'Unknown')}")
-    elif method == 'remote':
+    elif method == "remote":
         gen_model = GenRemoteModel(model_config)
         als_model = AlsRemoteModel(model_config)
         logger.info(f"[REMOTE] Loaded model: {model_config.get('model', 'Unknown')}")
     else:
         raise ValueError(f"Unsupported model method: {method}")
-    
+
     return gen_model, als_model
 
 
 def load_single_model_from_config(config_path, model_type):
     """
     Load single model instance from configuration file
-    
+
     Args:
         config_path: Path to configuration file
         model_type: Model type ('gen' or 'als')
-        
+
     Returns:
         Model instance
     """
-    with open(config_path, 'r', encoding='utf-8') as f:
+    with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
-    
-    method = config.get('method', 'remote')
-    model_config = config.get('config', {})
-    
-    if method == 'local':
-        if model_type == 'gen':
+
+    method = config.get("method", "remote")
+    model_config = config.get("config", {})
+
+    if method == "local":
+        if model_type == "gen":
             model = GenLocalModel(model_config)
-        elif model_type == 'als':
+        elif model_type == "als":
             model = AlsLocalModel(model_config)
         else:
             raise ValueError(f"Unsupported model type: {model_type}")
-        logger.info(f"[LOCAL] Loaded {model_type} model: {model_config.get('model', 'Unknown')}")
-    elif method == 'remote':
-        if model_type == 'gen':
+        logger.info(
+            f"[LOCAL] Loaded {model_type} model: {model_config.get('model', 'Unknown')}"
+        )
+    elif method == "remote":
+        if model_type == "gen":
             model = GenRemoteModel(model_config)
-        elif model_type == 'als':
+        elif model_type == "als":
             model = AlsRemoteModel(model_config)
         else:
             raise ValueError(f"Unsupported model type: {model_type}")
-        logger.info(f"[REMOTE] Loaded {model_type} model: {model_config.get('model', 'Unknown')}")
+        logger.info(
+            f"[REMOTE] Loaded {model_type} model: {model_config.get('model', 'Unknown')}"
+        )
     else:
         raise ValueError(f"Unsupported model method: {method}")
-    
+
     return model

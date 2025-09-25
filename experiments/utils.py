@@ -4,9 +4,6 @@ from pathlib import Path
 from typing import List
 
 import matplotlib.pyplot as plt
-import numpy as np
-import torch
-import matplotlib
 
 # print(plt.style.available)
 # plt.style.use("seaborn-v0_8-white")
@@ -175,17 +172,19 @@ class ExtractFromFile:
     def extract_coverage_data(file_path):
         """extract coverage data from fuel output log file"""
         coverage_data = []
-        
+
         with open(file_path, "r") as f:
             lines = f.readlines()
-        
+
         for line in lines:
             if "Total coverage rate is" in line:
                 # Extract percentage value
-                percentage_str = line.split("Total coverage rate is")[1].split("%")[0].strip()
+                percentage_str = (
+                    line.split("Total coverage rate is")[1].split("%")[0].strip()
+                )
                 percentage = float(percentage_str)
                 coverage_data.append(percentage)
-        
+
         return coverage_data
 
 

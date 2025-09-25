@@ -8,10 +8,11 @@ import subprocess as sp
 
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from .utils import get_all_pyfiles, read_pyfile, remove_pyfile, write_pyfile
 
 from fuel.exec.render_code import get_rendered_code
 from fuel.utils.util import hour_to_second, second_to_hour
+
+from .utils import get_all_pyfiles, read_pyfile, write_pyfile
 
 CPU_EXEC = """
 model(*inputs)
