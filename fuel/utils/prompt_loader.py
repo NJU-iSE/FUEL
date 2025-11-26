@@ -20,6 +20,7 @@ class Example(BaseModel):
     generated: str = ""
     coverage: str = ""
     exception: str = ""
+    bug: str = ""
 
     @staticmethod
     def load_from_dir(example_dir: Path) -> "Example":
@@ -27,7 +28,7 @@ class Example(BaseModel):
         example = Example()
 
         # Try to load each component
-        for field in ["code", "analysis", "apis", "generated", "coverage", "exception"]:
+        for field in ["code", "analysis", "apis", "generated", "coverage", "exception", "bug"]:
             file_path = example_dir / f"{field}.md"
             if file_path.exists():
                 setattr(example, field, file_path.read_text().strip())
@@ -126,6 +127,7 @@ class PromptLoader:
         include_generated: bool = True,
         include_coverage: bool = False,
         include_exception: bool = False,
+        include_bug: bool = False,
     ) -> str:
         """Format examples into a string for inclusion in prompts.
 
@@ -155,8 +157,13 @@ class PromptLoader:
                 parts.append("\n")
 
             if include_exception and example.exception:
-                parts.append("### Bug Symptom\n")
+                parts.append("### Exception Message\n")
                 parts.append(example.exception)
+                parts.append("\n")
+
+            if include_bug and example.bug:
+                parts.append("### Bug Symptom\n")
+                parts.append(example.bug)
                 parts.append("\n")
 
             if include_analysis and example.analysis:
@@ -250,7 +257,8 @@ class PromptLoader:
                     'coverage': str
                 },
                 'failure': {
-                    'exception': str
+                    'exception': str,
+                    'bug': str
                 }
             }
         """
@@ -278,11 +286,18 @@ class PromptLoader:
             )
         }
 
-        # Load failure exception analysis prompt
+        # Load failure exception analysis prompt (invalid test cases)
         exception_examples = self.load_examples(
             self.als_dir / "examples", "exception_*"
         )
         exception_template = self.load_template(self.als_dir / "failure_exception.md")
+        
+        # Load failure bug analysis prompt (oracle violations)
+        bug_examples = self.load_examples(
+            self.als_dir / "examples", "bug_*"
+        )
+        bug_template = self.load_template(self.als_dir / "failure_bug.md")
+        
         prompts["failure"] = {
             "exception": exception_template.replace(
                 "{{examples}}",
@@ -290,6 +305,17 @@ class PromptLoader:
                     exception_examples,
                     include_code=True,
                     include_exception=True,
+                    include_analysis=True,
+                    include_apis=False,
+                    include_generated=False,
+                ),
+            ),
+            "bug": bug_template.replace(
+                "{{examples}}",
+                self.format_examples(
+                    bug_examples,
+                    include_code=True,
+                    include_bug=True,
                     include_analysis=True,
                     include_apis=False,
                     include_generated=False,

@@ -1,8 +1,8 @@
-# Prompt: Analyze Exception Results
+# Prompt: Analyze Exception (Invalid Test Case)
 
 ## Context
 
-The {{lib}} model encountered an exception during execution. Analyze whether this is a framework bug or an invalid model.
+The {{lib}} model encountered exceptions in both backends during execution. This indicates the test case itself is invalid (syntax error, type mismatch, shape incompatibility, etc.), not a framework bug.
 
 {{examples}}
 
@@ -16,7 +16,7 @@ The {{lib}} model encountered an exception during execution. Analyze whether thi
 {{code}}
 ```
 
-### Bug Symptom
+### Exception Message
 
 {{exception}}
 
@@ -24,13 +24,13 @@ The {{lib}} model encountered an exception during execution. Analyze whether thi
 
 ## Task
 
-Analyze whether this is an invalid model caused by the code itself or a potential bug in {{lib}}.
+Analyze why this is an invalid model and how to fix it. The model failed in both backends, indicating it's a problem with the test case itself, not a framework bug.
 
-Help me summarize the symptoms in three short sentences following this format:
+Help me summarize the issue in three short sentences following this format:
 
 ### Result Analysis
 
-1. **Explanation**: [Is this a potential bug or an invalid model?]
-2. **Reasons**: [Root cause analysis - what caused this issue?]
-3. **Next Testing Strategy**: [If invalid model: how to fix it? If bug: how to trigger similar bugs?]
+1. **Explanation**: [Confirm this is an invalid model and identify the issue]
+2. **Reasons**: [Root cause - what's wrong with the code?]
+3. **Next Testing Strategy**: [How to fix this model to make it valid]
 

@@ -1,4 +1,5 @@
 import os
+import re
 import time
 
 from loguru import logger
@@ -38,19 +39,24 @@ class FuzzingCore:
             isinstance(als_prompt_or_text, str)
             and als_prompt_or_text != "use generation by default"
         ):
-            als_text = self.als_model.analyze(
-                role=self.prompt_handler.als_prompt_config["system_content"].format(
-                    lib=self.lib
-                ),
+            # Replace {{lib}} in system prompt
+            als_system = self.prompt_handler.als_prompt_config["system_content"].replace(
+                "{{lib}}", self.lib
+            )
+            als_res = self.als_model.analyze(
+                role=als_system,
                 prompt=als_prompt_or_text,
             )
         else:
-            als_text = als_prompt_or_text
+            als_res = als_prompt_or_text
 
         # Process generation prompt
         gen_prompt = self.prompt_handler.process_generation_prompt(
-            gen_prompt, als_text, op_nums, heuristic
+            gen_prompt, als_res, op_nums, heuristic
         )
+
+        logger.debug(f"[debug] Generated gen_prompt: {gen_prompt}")
+        # logger.debug(f"Generated als_prompt: {als_prompt_or_text}")
 
         # Write logs
         File.write_file(
@@ -59,10 +65,12 @@ class FuzzingCore:
         )
 
         # Generate code
+        # Replace {{lib}} in system prompt
+        gen_system = self.prompt_handler.gen_prompt_config["system_content"].replace(
+            "{{lib}}", self.lib
+        )
         gen_text = self.gen_model.generate(
-            role=self.prompt_handler.gen_prompt_config["system_content"].format(
-                lib=self.lib
-            ),
+            role=gen_system,
             prompt=gen_prompt,
         )
 
@@ -71,7 +79,7 @@ class FuzzingCore:
             File.als_file,
             f"""-------------Current analysis file is {File.cur_filename} -------------
                                                               \rCode follows up: \n{File.eliminated_code}
-                                                              \rAnalysis text follows up:\n{als_text}
+                                                              \rAnalysis text follows up:\n{als_res}
                                                               \n""",
         )
 
@@ -180,16 +188,28 @@ class FuzzingCore:
                 # logger.debug(f"The feedback follows up: \n{feedbk}\n")
         else:
             feedbk = exception
-            feedback_data = {
-                "code": File.eliminated_code,
-                "exception": feedbk,
-            }
+            
+            # Distinguish between bug (oracle violation) and exception (invalid test)
+            if FeedBack.has_bug:
+                # Oracle violation - written to bug_report
+                feedback_data = {
+                    "code": File.eliminated_code,
+                    "bug": feedbk,
+                }
+                logger.info("Oracle violation detected - treating as potential bug")
+            else:
+                # Invalid test case - exception in both backends
+                feedback_data = {
+                    "code": File.eliminated_code,
+                    "exception": feedbk,
+                }
+                logger.info("Exception in both backends - treating as invalid test")
 
             File.write_file(
                 File.feedback_file,
                 f"----Current round is {FeedBack.cur_round}----\n"
                 f"Current file is {File.cur_filename}\n"
-                f"{feedbk}\n",
+                f"{'[BUG]' if FeedBack.has_bug else '[EXCEPTION]'} {feedbk}\n",
             )
 
             if FeedBack.success_times >= 2:

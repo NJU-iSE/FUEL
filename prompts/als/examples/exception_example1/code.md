@@ -1,12 +1,16 @@
 ```python
 class Model(torch.nn.Module):
-    def forward(self, x):
-        x = x * 2
-        x = torch.nn.functional.dropout(x, p=0.5)
-        x = torch.relu(x)
-        return x
+    def __init__(self):
+        super().__init__()
+        self.mm_layer = torch.nn.Linear(10, 10)
 
-func = Model()
-inputs = torch.tensor([[1, 2, 3], [4, 5, 6]])
+    def forward(self, x1, inp):
+        v1 = torch.mm(x1, inp)
+        v2 = v1 + inp
+        return v2
+
+m = Model()
+x1 = torch.randn(2, 10)
+inp = torch.randn(2, 10)
 ```
 
