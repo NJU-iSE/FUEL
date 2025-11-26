@@ -4,12 +4,10 @@ import click
 from loguru import logger
 
 from .feedback.feedback import FeedBack
-from .utils.config_manager import validate_all_configs
 from .utils.Filer import File
 from .utils.fuzzing_core import FuzzingCore
 from .utils.model_manager import ModelManager
-from .utils.prompt_handler import PromptHandler
-from .utils.util import load_config_file
+from .utils.prompt_handler import PromptHandler, load_prompts
 
 ROOT_DIR = os.getcwd()
 
@@ -26,36 +24,29 @@ ROOT_DIR = os.getcwd()
     "gen_model_config",
     "--gen_model_config",
     type=str,
-    default="config/model/deepseek.yaml",
+    default="model_config/deepseek.yaml",
     help="Path to the generation model configuration file",
 )
 @click.option(
     "als_model_config",
     "--als_model_config",
     type=str,
-    default="config/model/deepseek.yaml",
+    default="model_config/deepseek.yaml",
     help="Path to the analysis model configuration file",
-)
-@click.option(
-    "gen_prompt_config",
-    "--gen_prompt_config",
-    type=str,
-    default="config/gen_prompt",
-    help="Path to the prompt configuration file",
-)
-@click.option(
-    "als_prompt_config",
-    "--als_prompt_config",
-    type=str,
-    default="config/als_prompt",
-    help="Path to the prompt configuration file",
 )
 @click.option(
     "heuristic_config",
     "--heuristic_config",
     type=str,
-    default="config/heuristic.yaml",
+    default="model_config/heuristic.yaml",
     help="Path to the heuristic configuration file",
+)
+@click.option(
+    "prompt_dir",
+    "--prompt_dir",
+    type=str,
+    default="prompts",
+    help="Path to the prompts directory (Markdown format)",
 )
 @click.pass_context
 def cli(
@@ -63,32 +54,15 @@ def cli(
     lib,
     gen_model_config,
     als_model_config,
-    gen_prompt_config,
-    als_prompt_config,
     heuristic_config,
+    prompt_dir,
 ):
     ctx.ensure_object(dict)
     ctx.obj["lib"] = lib
-
-    # Validate and ensure all config files exist
-    try:
-        validated_configs = validate_all_configs(
-            lib=lib,
-            gen_prompt_config=gen_prompt_config,
-            als_prompt_config=als_prompt_config,
-            heuristic_config=heuristic_config,
-        )
-
-        # Store validated config paths
-        ctx.obj.update(validated_configs)
-
-        # Store model config paths
-        ctx.obj["GEN_MODEL_CONFIG"] = gen_model_config
-        ctx.obj["ALS_MODEL_CONFIG"] = als_model_config
-
-    except Exception as e:
-        logger.error(f"Failed to setup configuration files: {e}")
-        raise click.ClickException(f"Configuration setup failed: {e}")
+    ctx.obj["GEN_MODEL_CONFIG"] = gen_model_config
+    ctx.obj["ALS_MODEL_CONFIG"] = als_model_config
+    ctx.obj["HEURISTIC_CONFIG"] = heuristic_config
+    ctx.obj["PROMPT_DIR"] = prompt_dir
 
 
 @cli.command("run_fuzz")
@@ -155,17 +129,16 @@ def run_fuzz(
     """Execute fuzzing test"""
     lib = ctx.obj["lib"]
 
-    # Load configuration files
-    gen_prompt_config, als_prompt_config = (
-        load_config_file(
-            ctx.obj["GEN_PROMPT_CONFIG"]
-            if heuristic != "None"
-            else ctx.obj["GEN_PROMPT_CONFIG"].replace(
-                "/", "/ablations/wo_heuristic/", 1
-            )
-        ),
-        load_config_file(ctx.obj["ALS_PROMPT_CONFIG"]),
-    )
+    # Load prompts from Markdown format
+    # TODO: Support ablation studies (wo_heuristic) by using different prompt directories
+    try:
+        gen_prompt_config, als_prompt_config = load_prompts(ctx.obj["PROMPT_DIR"])
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        raise click.ClickException(
+            f"Prompts directory not found: {ctx.obj['PROMPT_DIR']}. "
+            "Please ensure the prompts directory exists with Markdown templates."
+        )
 
     # Setup models
     gen_model, als_model = ModelManager.setup_models(
