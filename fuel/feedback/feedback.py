@@ -7,6 +7,7 @@ from coverage import Coverage
 
 from ..difftesting.oracle import OracleType
 from ..utils.Filer import File
+from .execution_status import ExecutionStatus
 
 warnings.filterwarnings("ignore")
 
@@ -95,16 +96,16 @@ class FeedBack:
     # Get delta coverage!
     @classmethod
     def get_delta_coverage(cls):
-        ans = ""
+        text = ""
         cov_flag = False
         for pyfile, line_sets in cls.delta_coverage.items():
             # If set is empty, don't print, it's easier to observe!
             if len(line_sets) != 0:
-                ans += f"{pyfile}: {len(line_sets)} line(s) of code\n"  # Use code lines
+                text += f"{pyfile}: {len(line_sets)} line(s) of code\n"  # Use code lines
                 cov_flag = True
         if not cov_flag:
-            ans += "No new coverage is triggered.\n"
-        return cov_flag, ans
+            text += "No new coverage is triggered.\n"
+        return cov_flag, text
 
     # Get current coverage!
     @classmethod
@@ -156,22 +157,45 @@ class FeedBack:
             ans += f"{pyfile}:{line_sets}\n"
         return ans
 
-    # Get exception
+    # Get execution status
     @classmethod
-    def get_exception(cls) -> tuple[bool, str]:
+    def get_status(cls) -> tuple[ExecutionStatus, str]:
         """
-        true:has exception
-        read err.log, if has content, it is not passed, otherwise passed!
+        Get execution status and detailed information
+        
+        Returns:
+            tuple[ExecutionStatus, str]: 
+                - ExecutionStatus: Execution status (SUCCESS/BUG/EXCEPTION)
+                - str: Detailed message (success info/bug description/exception info)
+        
+        Status determination logic:
+            - If err.log is empty, execution succeeded, return SUCCESS
+            - If has_bug is True, oracle violation was triggered, return BUG
+            - If has_exception is True, both backends threw exceptions (invalid test), return EXCEPTION
         """
         exception = File.read_file(File.err_file)
+        
         if exception == "":
-            return True, "Nothing Wrong"
+            # Execution succeeded without any errors
+            return ExecutionStatus.SUCCESS, "Nothing Wrong"
         else:
+            # Has error information, need to distinguish between bug and exception
             exception = exception.split('<string>", ')[-1]
-            # clear
+            
+            # Clear error file
             with open(File.err_file, "w") as f:
                 f.write("")
-            return False, exception
+            
+            # Determine status based on has_bug and has_exception flags
+            if cls.has_bug:
+                # Oracle violation - different backends produce inconsistent results
+                return ExecutionStatus.BUG, exception
+            elif cls.has_exception:
+                # Invalid test - both backends threw exceptions
+                return ExecutionStatus.EXCEPTION, exception
+            else:
+                # Default case, treat as exception
+                return ExecutionStatus.EXCEPTION, exception
 
     @classmethod
     def get_line_content(cls, filename: str, line_number_set: set) -> str:

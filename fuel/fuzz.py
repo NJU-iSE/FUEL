@@ -3,6 +3,7 @@ import os
 import click
 from loguru import logger
 
+from .feedback.execution_status import ExecutionStatus
 from .feedback.feedback import FeedBack
 from .utils.Filer import File
 from .utils.fuzzing_core import FuzzingCore
@@ -161,7 +162,7 @@ def run_fuzz(
     fuzzing_core = FuzzingCore(gen_model, als_model, prompt_handler, lib)
 
     # Initialize variables
-    feedback_data = {"statue": True, "feedback": {}}
+    feedback_data = {"status": ExecutionStatus.SUCCESS, "feedback": {}}
     flag = True  # Fix flag
 
     # Start fuzzing

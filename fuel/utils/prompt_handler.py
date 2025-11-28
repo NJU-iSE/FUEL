@@ -4,6 +4,7 @@ from typing import Dict, Tuple
 from loguru import logger
 
 from ..feedback.feedback import FeedBack
+from ..feedback.execution_status import ExecutionStatus
 from .prompt_loader import load_prompts_from_markdown
 
 
@@ -63,13 +64,26 @@ class PromptHandler:
         self.als_prompt_config = als_prompt_config
 
     def get_prompts(self, feedback_data, lib, op_nums, heuristic=None):
-        """Generate appropriate prompts based on current state"""
-        statue = feedback_data.get("statue", True)
+        """Generate appropriate prompts based on current execution status
+        
+        Args:
+            feedback_data: Feedback data containing status (ExecutionStatus) and feedback (dict)
+            lib: Library name under test (pytorch/tensorflow)
+            op_nums: Number of operators
+            heuristic: Heuristic algorithm instance
+            
+        Returns:
+            tuple: (gen_prompt, als_prompt_or_text)
+                - gen_prompt: Generation prompt
+                - als_prompt_or_text: Analysis prompt or text
+        """
+        # Get execution status
+        status = feedback_data.get("status", ExecutionStatus.SUCCESS)
         _feedback = feedback_data.get("feedback", {})
 
         # Determine whether to use default prompt
         if (
-            (FeedBack.success_times < 2 and statue)
+            (FeedBack.success_times < 2 and status == ExecutionStatus.SUCCESS)
             or FeedBack.cons_fail > 2
             or FeedBack.fix_failed
         ):
@@ -78,33 +92,46 @@ class PromptHandler:
             als_text = "use generation by default"
             # Replace {{lib}} in default prompt
             gen_prompt = gen_prompt.replace("{{lib}}", lib)
+            logger.info("Using default generation prompt (no analysis needed)")
             return gen_prompt, als_text
 
-        # Select prompts based on success/failure status
-        if statue:
+        # Select appropriate analysis template based on execution status
+        if status == ExecutionStatus.SUCCESS:
+            # Execution succeeded - use coverage analysis template
             als_prompt = self.als_prompt_config["success"]["coverage"]
-            als_prompt = als_prompt.replace("{{coverage}}", _feedback["coverage"])
+            als_prompt = als_prompt.replace("{{coverage}}", _feedback.get("coverage", ""))
             gen_prompt = self.gen_prompt_config["success"]
-        else:
+            logger.info("Using success analysis prompt (coverage analysis)")
+            
+        elif status == ExecutionStatus.BUG:
+            # Oracle violation - use bug analysis template
             FeedBack.cons_fail += 1
-            
-            # Distinguish between bug (oracle violation) and exception (invalid test)
-            if FeedBack.has_bug:
-                # Oracle violation - potential framework bug
-                als_prompt = self.als_prompt_config["failure"]["bug"]
-                als_prompt = als_prompt.replace("{{bug}}", _feedback.get("bug", _feedback.get("exception", "")))
-                logger.info("Using bug analysis prompt (oracle violation)")
-            else:
-                # Invalid test case - exception in both backends
-                als_prompt = self.als_prompt_config["failure"]["exception"]
-                als_prompt = als_prompt.replace("{{exception}}", _feedback.get("exception", ""))
-                logger.info("Using exception analysis prompt (invalid test)")
-            
+            als_prompt = self.als_prompt_config["failure"]["bug"]
+            bug_message = _feedback.get("bug", _feedback.get("exception", ""))
+            als_prompt = als_prompt.replace("{{bug}}", bug_message)
             gen_prompt = self.gen_prompt_config["failure"]
+            logger.warning("Using bug analysis prompt (oracle violation detected)")
+            
+        elif status == ExecutionStatus.EXCEPTION:
+            # Invalid test - use exception analysis template
+            FeedBack.cons_fail += 1
+            als_prompt = self.als_prompt_config["failure"]["exception"]
+            exception_message = _feedback.get("exception", "")
+            als_prompt = als_prompt.replace("{{exception}}", exception_message)
+            gen_prompt = self.gen_prompt_config["failure"]
+            logger.info("Using exception analysis prompt (invalid test case)")
+            
+        else:
+            # Unknown status, use default
+            logger.warning(f"Unknown execution status: {status}, using default prompt")
+            gen_prompt = self.gen_prompt_config["default"]
+            als_text = "use generation by default"
+            gen_prompt = gen_prompt.replace("{{lib}}", lib)
+            return gen_prompt, als_text
 
         # Process common prompt replacements
-        als_prompt = als_prompt.replace("{{code}}", _feedback["code"])
-        gen_prompt = gen_prompt.replace("{{code}}", _feedback["code"])
+        als_prompt = als_prompt.replace("{{code}}", _feedback.get("code", ""))
+        gen_prompt = gen_prompt.replace("{{code}}", _feedback.get("code", ""))
         
         # Replace {{lib}} in all prompts
         als_prompt = als_prompt.replace("{{lib}}", lib)
