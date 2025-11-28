@@ -1,8 +1,8 @@
-# Prompt: Generate Code After Failed Execution
+# Prompt: Generate Code After Successful Execution
 
 ## Context
 
-The previous {{lib}} model encountered an exception during execution. Based on the exception analysis, either fix the invalid model or generate a new model to trigger similar bugs.
+The previous {{lib}} model executed successfully on both Eager and Compiler backends. Based on the coverage feedback and analysis, generate a new model to explore untested code paths.
 
 {{examples}}
 
@@ -16,7 +16,6 @@ The previous {{lib}} model encountered an exception during execution. Based on t
 {{code}}
 ```
 
-### Result Analysis
 
 {{als_res}}
 
@@ -28,7 +27,7 @@ The previous {{lib}} model encountered an exception during execution. Based on t
 
 ## Task
 
-Based on the above {{lib}} code and result analysis, generate new {{lib}} code to trigger new similar bugs or fix invalid models with suggested {{lib}} APIs.
+Based on the above {{lib}} code and result analysis, generate new {{lib}} code to trigger new coverage with suggested {{lib}} APIs.
 
 **Note**: You can also use additional {{lib}} public operators to satisfy model constraints and avoid invalid models.
 
@@ -41,4 +40,5 @@ Based on the above {{lib}} code and result analysis, generate new {{lib}} code t
 ```python
 # Your generated code here
 ```
+
 

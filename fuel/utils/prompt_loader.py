@@ -39,27 +39,6 @@ class Example(BaseModel):
 class PromptLoader:
     """
     Loads and manages prompt templates from Markdown files.
-
-    Directory structure:
-        prompts/
-        ├── gen/
-        │   ├── system.md
-        │   ├── success.md
-        │   ├── failure.md
-        │   ├── default.md
-        │   └── examples/
-        │       ├── success_example1/
-        │       │   ├── code.md
-        │       │   ├── analysis.md
-        │       │   ├── apis.md
-        │       │   └── generated.md
-        │       └── ...
-        └── als/
-            ├── system.md
-            ├── success_coverage.md
-            ├── failure_exception.md
-            └── examples/
-                └── ...
     """
 
     def __init__(self, prompt_dir: str = "prompts"):
@@ -188,22 +167,29 @@ class PromptLoader:
         """Load all generation prompts.
 
         Returns:
-            Dictionary with keys: 'system', 'success', 'failure', 'default'
+            Dictionary with structure:
+            {
+                'system_content': str,
+                'coverage': str,    # SUCCESS status - coverage-driven generation
+                'bug': str,         # BUG status - bug-driven generation
+                'exception': str,   # EXCEPTION status - exception-driven generation
+                'default': str      # Initial/fallback generation
+            }
         """
         prompts = {}
 
         # Load system prompt
         prompts["system_content"] = self.load_template(self.gen_dir / "system.md")
 
-        # Load success prompt with examples
-        success_examples = self.load_examples(
-            self.gen_dir / "examples", "success_*"
+        # Load coverage generation prompt (SUCCESS status)
+        coverage_examples = self.load_examples(
+            self.gen_dir / "examples", "cov_*"
         )
-        success_template = self.load_template(self.gen_dir / "success.md")
-        prompts["success"] = success_template.replace(
+        coverage_template = self.load_template(self.gen_dir / "cov_gen.md")
+        prompts["coverage"] = coverage_template.replace(
             "{{examples}}",
             self.format_examples(
-                success_examples,
+                coverage_examples,
                 include_code=True,
                 include_analysis=True,
                 include_apis=True,
@@ -211,15 +197,31 @@ class PromptLoader:
             ),
         )
 
-        # Load failure prompt with examples
-        failure_examples = self.load_examples(
-            self.gen_dir / "examples", "failure_*"
+        # Load bug generation prompt (BUG status - oracle violations)
+        bug_examples = self.load_examples(
+            self.gen_dir / "examples", "bug_*"
         )
-        failure_template = self.load_template(self.gen_dir / "failure.md")
-        prompts["failure"] = failure_template.replace(
+        bug_template = self.load_template(self.gen_dir / "bug_gen.md")
+        prompts["bug"] = bug_template.replace(
             "{{examples}}",
             self.format_examples(
-                failure_examples,
+                bug_examples,
+                include_code=True,
+                include_analysis=True,
+                include_apis=True,
+                include_generated=True,
+            ),
+        )
+        
+        # Load exception generation prompt (EXCEPTION status - invalid test cases)
+        exception_examples = self.load_examples(
+            self.gen_dir / "examples", "exception_*"
+        )
+        exception_template = self.load_template(self.gen_dir / "exception_gen.md")
+        prompts["exception"] = exception_template.replace(
+            "{{examples}}",
+            self.format_examples(
+                exception_examples,
                 include_code=True,
                 include_analysis=True,
                 include_apis=True,
@@ -231,7 +233,7 @@ class PromptLoader:
         default_examples = self.load_examples(
             self.gen_dir / "examples", "default_*"
         )
-        default_template = self.load_template(self.gen_dir / "default.md")
+        default_template = self.load_template(self.gen_dir / "default_gen.md")
         prompts["default"] = default_template.replace(
             "{{examples}}",
             self.format_examples(
@@ -246,20 +248,16 @@ class PromptLoader:
         logger.success("Successfully loaded all generation prompts")
         return prompts
 
-    def load_als_prompts(self) -> Dict[str, Dict[str, str]]:
+    def load_als_prompts(self) -> Dict[str, str]:
         """Load all analysis prompts.
 
         Returns:
-            Nested dictionary with structure:
+            Dictionary with structure:
             {
                 'system_content': str,
-                'success': {
-                    'coverage': str
-                },
-                'failure': {
-                    'exception': str,
-                    'bug': str
-                }
+                'coverage': str,    # SUCCESS status - coverage analysis
+                'bug': str,         # BUG status - bug analysis
+                'exception': str    # EXCEPTION status - exception analysis
             }
         """
         prompts = {}
@@ -267,61 +265,56 @@ class PromptLoader:
         # Load system prompt
         prompts["system_content"] = self.load_template(self.als_dir / "system.md")
 
-        # Load success coverage analysis prompt
+        # Load coverage analysis prompt (SUCCESS status)
         coverage_examples = self.load_examples(
             self.als_dir / "examples", "coverage_*"
         )
-        coverage_template = self.load_template(self.als_dir / "success_coverage.md")
-        prompts["success"] = {
-            "coverage": coverage_template.replace(
-                "{{examples}}",
-                self.format_examples(
-                    coverage_examples,
-                    include_code=True,
-                    include_coverage=True,
-                    include_analysis=True,
-                    include_apis=False,
-                    include_generated=False,
-                ),
-            )
-        }
-
-        # Load failure exception analysis prompt (invalid test cases)
-        exception_examples = self.load_examples(
-            self.als_dir / "examples", "exception_*"
+        coverage_template = self.load_template(self.als_dir / "cov_als.md")
+        prompts["coverage"] = coverage_template.replace(
+            "{{examples}}",
+            self.format_examples(
+                coverage_examples,
+                include_code=True,
+                include_coverage=True,
+                include_analysis=True,
+                include_apis=False,
+                include_generated=False,
+            ),
         )
-        exception_template = self.load_template(self.als_dir / "failure_exception.md")
-        
-        # Load failure bug analysis prompt (oracle violations)
+
+        # Load bug analysis prompt (BUG status - oracle violations)
         bug_examples = self.load_examples(
             self.als_dir / "examples", "bug_*"
         )
-        bug_template = self.load_template(self.als_dir / "failure_bug.md")
-        
-        prompts["failure"] = {
-            "exception": exception_template.replace(
-                "{{examples}}",
-                self.format_examples(
-                    exception_examples,
-                    include_code=True,
-                    include_exception=True,
-                    include_analysis=True,
-                    include_apis=False,
-                    include_generated=False,
-                ),
+        bug_template = self.load_template(self.als_dir / "bug_als.md")
+        prompts["bug"] = bug_template.replace(
+            "{{examples}}",
+            self.format_examples(
+                bug_examples,
+                include_code=True,
+                include_bug=True,
+                include_analysis=True,
+                include_apis=False,
+                include_generated=False,
             ),
-            "bug": bug_template.replace(
-                "{{examples}}",
-                self.format_examples(
-                    bug_examples,
-                    include_code=True,
-                    include_bug=True,
-                    include_analysis=True,
-                    include_apis=False,
-                    include_generated=False,
-                ),
-            )
-        }
+        )
+        
+        # Load exception analysis prompt (EXCEPTION status - invalid test cases)
+        exception_examples = self.load_examples(
+            self.als_dir / "examples", "exception_*"
+        )
+        exception_template = self.load_template(self.als_dir / "exception_als.md")
+        prompts["exception"] = exception_template.replace(
+            "{{examples}}",
+            self.format_examples(
+                exception_examples,
+                include_code=True,
+                include_exception=True,
+                include_analysis=True,
+                include_apis=False,
+                include_generated=False,
+            ),
+        )
 
         logger.success("Successfully loaded all analysis prompts")
         return prompts
@@ -329,7 +322,7 @@ class PromptLoader:
 
 def load_prompts_from_markdown(
     prompt_dir: str = "prompts",
-) -> tuple[Dict[str, str], Dict[str, Dict[str, str]]]:
+) -> tuple[Dict[str, str], Dict[str, str]]:
     """Convenience function to load both generation and analysis prompts.
 
     Args:
@@ -337,6 +330,7 @@ def load_prompts_from_markdown(
 
     Returns:
         Tuple of (gen_prompts, als_prompts)
+        Both are flat dictionaries with keys: 'system_content', 'coverage', 'bug', 'exception', 'default'(gen only)
     """
     loader = PromptLoader(prompt_dir)
     gen_prompts = loader.load_gen_prompts()

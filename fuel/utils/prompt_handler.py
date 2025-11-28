@@ -95,31 +95,31 @@ class PromptHandler:
             logger.info("Using default generation prompt (no analysis needed)")
             return gen_prompt, als_text
 
-        # Select appropriate analysis template based on execution status
+        # Select appropriate analysis and generation templates based on execution status
         if status == ExecutionStatus.SUCCESS:
-            # Execution succeeded - use coverage analysis template
-            als_prompt = self.als_prompt_config["success"]["coverage"]
+            # Execution succeeded - use coverage analysis and generation templates
+            als_prompt = self.als_prompt_config["coverage"]
             als_prompt = als_prompt.replace("{{coverage}}", _feedback.get("coverage", ""))
-            gen_prompt = self.gen_prompt_config["success"]
-            logger.info("Using success analysis prompt (coverage analysis)")
+            gen_prompt = self.gen_prompt_config["coverage"]
+            logger.info("Using coverage prompts (analysis & generation)")
             
         elif status == ExecutionStatus.BUG:
-            # Oracle violation - use bug analysis template
+            # Oracle violation - use bug analysis and generation templates
             FeedBack.cons_fail += 1
-            als_prompt = self.als_prompt_config["failure"]["bug"]
+            als_prompt = self.als_prompt_config["bug"]
             bug_message = _feedback.get("bug", _feedback.get("exception", ""))
             als_prompt = als_prompt.replace("{{bug}}", bug_message)
-            gen_prompt = self.gen_prompt_config["failure"]
-            logger.warning("Using bug analysis prompt (oracle violation detected)")
+            gen_prompt = self.gen_prompt_config["bug"]
+            logger.warning("Using bug prompts (oracle violation analysis & generation)")
             
         elif status == ExecutionStatus.EXCEPTION:
-            # Invalid test - use exception analysis template
+            # Invalid test - use exception analysis and generation templates
             FeedBack.cons_fail += 1
-            als_prompt = self.als_prompt_config["failure"]["exception"]
+            als_prompt = self.als_prompt_config["exception"]
             exception_message = _feedback.get("exception", "")
             als_prompt = als_prompt.replace("{{exception}}", exception_message)
-            gen_prompt = self.gen_prompt_config["failure"]
-            logger.info("Using exception analysis prompt (invalid test case)")
+            gen_prompt = self.gen_prompt_config["exception"]
+            logger.info("Using exception prompts (invalid test analysis & generation)")
             
         else:
             # Unknown status, use default

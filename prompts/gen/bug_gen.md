@@ -1,8 +1,8 @@
-# Prompt: Generate Code After Successful Execution
+# Prompt: Generate Code After Bug Detection
 
 ## Context
 
-The previous {{lib}} model executed successfully on both Eager and Compiler backends. Based on the coverage feedback and analysis, generate a new model to explore untested code paths.
+The previous {{lib}} model triggered an oracle violation where different backends produced inconsistent results. This is a potential framework bug. Based on the bug analysis, generate a new model to trigger similar bugs.
 
 {{examples}}
 
@@ -16,7 +16,6 @@ The previous {{lib}} model executed successfully on both Eager and Compiler back
 {{code}}
 ```
 
-### Result Analysis
 
 {{als_res}}
 
@@ -28,7 +27,9 @@ The previous {{lib}} model executed successfully on both Eager and Compiler back
 
 ## Task
 
-Based on the above {{lib}} code and result analysis, generate new {{lib}} code to trigger new coverage with suggested {{lib}} APIs.
+Based on the above {{lib}} code and bug analysis, generate new {{lib}} code to trigger similar bugs with suggested {{lib}} APIs.
+
+**Strategy**: Focus on similar operator combinations or patterns that might expose related oracle violations.
 
 **Note**: You can also use additional {{lib}} public operators to satisfy model constraints and avoid invalid models.
 
@@ -41,4 +42,5 @@ Based on the above {{lib}} code and result analysis, generate new {{lib}} code t
 ```python
 # Your generated code here
 ```
+
 

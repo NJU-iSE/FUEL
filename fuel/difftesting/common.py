@@ -1,18 +1,18 @@
 import torch
 
 
-def record_exception(exception, version, filename, err_file, total_errs_file):
+def record_exception(exception, backend, filename, err_file, total_errs_file):
     exception = str(exception)
     if "from user code:" in exception:
         exception = exception.split("from user code:")[0]
 
     with open(err_file, "a+", encoding="utf-8") as f:
-        f.write(f"The exception in {version} mode is \n{exception}\n")
+        f.write(f"The exception message on {backend} backend is: \n{exception}\n")
 
     with open(total_errs_file, "a+", encoding="utf-8") as f:
         f.write(
             f"---------------Current test case is {filename} ---------------\n"
-            f"The {version} mode has bug, it follows up:\n{exception}\n"
+            f"The {backend} backend has bug below:\n{exception}\n"
         )
 
 

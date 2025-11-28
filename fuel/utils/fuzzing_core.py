@@ -57,12 +57,12 @@ class FuzzingCore:
         )
 
         logger.debug(f"[debug] Generated gen_prompt: {gen_prompt}")
-        # logger.debug(f"Generated als_prompt: {als_prompt_or_text}")
+        logger.debug(f"[debug] Generated als_prompt: {als_prompt_or_text}")
 
         # Write logs
         File.write_file(
             File.gen_file,
-            f"----current round is {FeedBack.cur_round}----\n{gen_prompt.split('### Results')[-1]}",
+            f"----Fuzzing Iteration.{FeedBack.cur_round}----\n{gen_prompt.split('### Results')[-1]}",
         )
 
         # Generate code
@@ -185,7 +185,7 @@ class FuzzingCore:
 
             File.write_file(
                 File.feedback_file,
-                f"----Current round is {FeedBack.cur_round}----\n"
+                f"----Fuzzing Iteration.{FeedBack.cur_round}----\n"
                 f"Current file is {File.cur_filename}\n"
                 f"[SUCCESS] {feedbk}\n",
             )
@@ -206,7 +206,7 @@ class FuzzingCore:
 
             File.write_file(
                 File.feedback_file,
-                f"----Current round is {FeedBack.cur_round}----\n"
+                f"----Fuzzing Iteration.{FeedBack.cur_round}----\n"
                 f"Current file is {File.cur_filename}\n"
                 f"[BUG] {feedbk}\n",
             )
@@ -226,7 +226,7 @@ class FuzzingCore:
 
             File.write_file(
                 File.feedback_file,
-                f"----Current round is {FeedBack.cur_round}----\n"
+                f"----Fuzzing Iteration.{FeedBack.cur_round}----\n"
                 f"Current file is {File.cur_filename}\n"
                 f"[EXCEPTION] {feedbk}\n",
             )
@@ -239,7 +239,7 @@ class FuzzingCore:
         logger.info(
             f"fix total: {FeedBack.fix_success_times + FeedBack.fix_fail_times},success:{FeedBack.fix_success_times}\n"
         )
-        logger.success("[Current Round Is Successful!]\n")
+        logger.success("[Current Iteration Is Successful!]\n")
 
         # Return unified status information
         return {

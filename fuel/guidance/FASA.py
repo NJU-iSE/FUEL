@@ -54,7 +54,7 @@ class FASA:
                 content += f"{op}:{self.ops[op].value}   "
             File.write_file(
                 File.ops_file,
-                f"----current round is {FeedBack.cur_round}----\n{content}\n",
+                f"----Fuzzing Iteration.{FeedBack.cur_round}----\n{content}\n",
             )
         # init the parameter
         self.select_numbers = random.randint(1, 3)
