@@ -52,6 +52,9 @@ class FeedBack:
         elif diff_type == "cuda_compiler":
             cls.base_version = "Eager(CUDA)"
             cls.target_version = "Compiler(CUDA)"
+        elif diff_type == "mps_compiler":
+            cls.base_version = "Eager(MPS)"
+            cls.target_version = "Compiler(MPS)"
         else:
             cls.base_version = "Base"
             cls.target_version = "Target"
