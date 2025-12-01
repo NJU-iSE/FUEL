@@ -5,7 +5,7 @@ This module provides a clean way to load and manage prompt templates from Markdo
 """
 
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from loguru import logger
 from pydantic import BaseModel
@@ -28,7 +28,15 @@ class Example(BaseModel):
         example = Example()
 
         # Try to load each component
-        for field in ["code", "analysis", "apis", "generated", "coverage", "exception", "bug"]:
+        for field in [
+            "code",
+            "analysis",
+            "apis",
+            "generated",
+            "coverage",
+            "exception",
+            "bug",
+        ]:
             file_path = example_dir / f"{field}.md"
             if file_path.exists():
                 setattr(example, field, file_path.read_text().strip())
@@ -66,9 +74,7 @@ class PromptLoader:
             return ""
         return template_path.read_text()
 
-    def load_examples(
-        self, examples_dir: Path, pattern: str = "*"
-    ) -> List[Example]:
+    def load_examples(self, examples_dir: Path, pattern: str = "*") -> List[Example]:
         """Load all examples from a directory.
 
         Args:
@@ -182,9 +188,7 @@ class PromptLoader:
         prompts["system_content"] = self.load_template(self.gen_dir / "system.md")
 
         # Load coverage generation prompt (SUCCESS status)
-        coverage_examples = self.load_examples(
-            self.gen_dir / "examples", "cov_*"
-        )
+        coverage_examples = self.load_examples(self.gen_dir / "examples", "cov_*")
         coverage_template = self.load_template(self.gen_dir / "cov_gen.md")
         prompts["coverage"] = coverage_template.replace(
             "{{examples}}",
@@ -198,9 +202,7 @@ class PromptLoader:
         )
 
         # Load bug generation prompt (BUG status - oracle violations)
-        bug_examples = self.load_examples(
-            self.gen_dir / "examples", "bug_*"
-        )
+        bug_examples = self.load_examples(self.gen_dir / "examples", "bug_*")
         bug_template = self.load_template(self.gen_dir / "bug_gen.md")
         prompts["bug"] = bug_template.replace(
             "{{examples}}",
@@ -212,7 +214,7 @@ class PromptLoader:
                 include_generated=True,
             ),
         )
-        
+
         # Load exception generation prompt (EXCEPTION status - invalid test cases)
         exception_examples = self.load_examples(
             self.gen_dir / "examples", "exception_*"
@@ -230,9 +232,7 @@ class PromptLoader:
         )
 
         # Load default prompt with examples
-        default_examples = self.load_examples(
-            self.gen_dir / "examples", "default_*"
-        )
+        default_examples = self.load_examples(self.gen_dir / "examples", "default_*")
         default_template = self.load_template(self.gen_dir / "default_gen.md")
         prompts["default"] = default_template.replace(
             "{{examples}}",
@@ -266,9 +266,7 @@ class PromptLoader:
         prompts["system_content"] = self.load_template(self.als_dir / "system.md")
 
         # Load coverage analysis prompt (SUCCESS status)
-        coverage_examples = self.load_examples(
-            self.als_dir / "examples", "coverage_*"
-        )
+        coverage_examples = self.load_examples(self.als_dir / "examples", "coverage_*")
         coverage_template = self.load_template(self.als_dir / "cov_als.md")
         prompts["coverage"] = coverage_template.replace(
             "{{examples}}",
@@ -283,9 +281,7 @@ class PromptLoader:
         )
 
         # Load bug analysis prompt (BUG status - oracle violations)
-        bug_examples = self.load_examples(
-            self.als_dir / "examples", "bug_*"
-        )
+        bug_examples = self.load_examples(self.als_dir / "examples", "bug_*")
         bug_template = self.load_template(self.als_dir / "bug_als.md")
         prompts["bug"] = bug_template.replace(
             "{{examples}}",
@@ -298,7 +294,7 @@ class PromptLoader:
                 include_generated=False,
             ),
         )
-        
+
         # Load exception analysis prompt (EXCEPTION status - invalid test cases)
         exception_examples = self.load_examples(
             self.als_dir / "examples", "exception_*"
@@ -336,4 +332,3 @@ def load_prompts_from_markdown(
     gen_prompts = loader.load_gen_prompts()
     als_prompts = loader.load_als_prompts()
     return gen_prompts, als_prompts
-

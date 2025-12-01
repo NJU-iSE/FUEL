@@ -52,7 +52,10 @@ ROOT_DIR = os.getcwd()
 @click.option(
     "log_level",
     "--log_level",
-    type=click.Choice(["DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL"], case_sensitive=False),
+    type=click.Choice(
+        ["DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL"],
+        case_sensitive=False,
+    ),
     default="INFO",
     help="Log level (default: INFO). Set to INFO to hide DEBUG messages.",
 )
@@ -74,7 +77,7 @@ def cli(
         format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <level>{message}</level>",
         colorize=True,
     )
-    
+
     ctx.ensure_object(dict)
     ctx.obj["lib"] = lib
     ctx.obj["GEN_MODEL_CONFIG"] = gen_model_config

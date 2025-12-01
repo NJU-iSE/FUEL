@@ -3,8 +3,8 @@ from typing import Dict, Tuple
 
 from loguru import logger
 
-from ..feedback.feedback import FeedBack
 from ..feedback.execution_status import ExecutionStatus
+from ..feedback.feedback import FeedBack
 from .prompt_loader import load_prompts_from_markdown
 
 
@@ -55,7 +55,7 @@ class PromptHandler:
 
     def __init__(self, gen_prompt_config, als_prompt_config):
         """Initialize prompt handler.
-        
+
         Args:
             gen_prompt_config: Dictionary containing generation prompt templates
             als_prompt_config: Dictionary containing analysis prompt templates
@@ -65,13 +65,13 @@ class PromptHandler:
 
     def get_prompts(self, feedback_data, lib, op_nums, heuristic=None):
         """Generate appropriate prompts based on current execution status
-        
+
         Args:
             feedback_data: Feedback data containing status (ExecutionStatus) and feedback (dict)
             lib: Library name under test (pytorch/tensorflow)
             op_nums: Number of operators
             heuristic: Heuristic algorithm instance
-            
+
         Returns:
             tuple: (gen_prompt, als_prompt_or_text)
                 - gen_prompt: Generation prompt
@@ -99,10 +99,12 @@ class PromptHandler:
         if status == ExecutionStatus.SUCCESS:
             # Execution succeeded - use coverage analysis and generation templates
             als_prompt = self.als_prompt_config["coverage"]
-            als_prompt = als_prompt.replace("{{coverage}}", _feedback.get("coverage", ""))
+            als_prompt = als_prompt.replace(
+                "{{coverage}}", _feedback.get("coverage", "")
+            )
             gen_prompt = self.gen_prompt_config["coverage"]
             logger.info("Using coverage prompts (analysis & generation)")
-            
+
         elif status == ExecutionStatus.BUG:
             # Oracle violation - use bug analysis and generation templates
             FeedBack.cons_fail += 1
@@ -111,7 +113,7 @@ class PromptHandler:
             als_prompt = als_prompt.replace("{{bug}}", bug_message)
             gen_prompt = self.gen_prompt_config["bug"]
             logger.warning("Using bug prompts (oracle violation analysis & generation)")
-            
+
         elif status == ExecutionStatus.EXCEPTION:
             # Invalid test - use exception analysis and generation templates
             FeedBack.cons_fail += 1
@@ -120,7 +122,7 @@ class PromptHandler:
             als_prompt = als_prompt.replace("{{exception}}", exception_message)
             gen_prompt = self.gen_prompt_config["exception"]
             logger.info("Using exception prompts (invalid test analysis & generation)")
-            
+
         else:
             # Unknown status, use default
             logger.warning(f"Unknown execution status: {status}, using default prompt")
@@ -132,7 +134,7 @@ class PromptHandler:
         # Process common prompt replacements
         als_prompt = als_prompt.replace("{{code}}", _feedback.get("code", ""))
         gen_prompt = gen_prompt.replace("{{code}}", _feedback.get("code", ""))
-        
+
         # Replace {{lib}} in all prompts
         als_prompt = als_prompt.replace("{{lib}}", lib)
         gen_prompt = gen_prompt.replace("{{lib}}", lib)
@@ -156,9 +158,13 @@ class PromptHandler:
         else:
             # If no heuristic, use cur_ops if available, otherwise leave empty
             if FeedBack.cur_ops:
-                gen_prompt = gen_prompt.replace("{{new_ops}}", "\n".join(FeedBack.cur_ops))
+                gen_prompt = gen_prompt.replace(
+                    "{{new_ops}}", "\n".join(FeedBack.cur_ops)
+                )
             else:
                 # Replace with empty or default message
-                gen_prompt = gen_prompt.replace("{{new_ops}}", "(No specific operators suggested)")
+                gen_prompt = gen_prompt.replace(
+                    "{{new_ops}}", "(No specific operators suggested)"
+                )
 
         return gen_prompt

@@ -1,5 +1,4 @@
 import os
-import re
 import time
 
 from loguru import logger
@@ -7,8 +6,8 @@ from loguru import logger
 from ..difftesting.difftesting import DiffTesting
 from ..difftesting.oracle import OracleType
 from ..exec.exec_template import exec_template
-from ..feedback.feedback import FeedBack
 from ..feedback.execution_status import ExecutionStatus
+from ..feedback.feedback import FeedBack
 from ..utils.Filer import File
 from ..utils.util import extra_code_from_text
 
@@ -41,9 +40,9 @@ class FuzzingCore:
             and als_prompt_or_text != "use generation by default"
         ):
             # Replace {{lib}} in system prompt
-            als_system = self.prompt_handler.als_prompt_config["system_content"].replace(
-                "{{lib}}", self.lib
-            )
+            als_system = self.prompt_handler.als_prompt_config[
+                "system_content"
+            ].replace("{{lib}}", self.lib)
             als_res = self.als_model.analyze(
                 role=als_system,
                 prompt=als_prompt_or_text,
@@ -145,7 +144,7 @@ class FuzzingCore:
 
     def process_feedback(self, file_path):
         """Process feedback and coverage based on execution status
-        
+
         Handles different execution statuses:
         - SUCCESS: Calculate coverage and record successful execution
         - BUG: Record oracle violation (potential framework bug)
@@ -158,7 +157,7 @@ class FuzzingCore:
         status, message = FeedBack.get_status()
 
         feedback_data = {}
-        
+
         if status == ExecutionStatus.SUCCESS:
             # Execution succeeded - calculate coverage
             FeedBack.cal_coverage()
@@ -194,7 +193,7 @@ class FuzzingCore:
             if FeedBack.success_times >= 2:
                 logger.success("execute successfully\n")
                 # logger.debug(f"The feedback follows up: \n{feedbk}\n")
-                
+
         elif status == ExecutionStatus.BUG:
             # Oracle violation - potential framework bug
             feedbk = message
@@ -214,7 +213,7 @@ class FuzzingCore:
             if FeedBack.success_times >= 2:
                 logger.success("execute successfully\n")
                 # logger.exception(f"The feedback follows up: \n{feedbk}\n")
-                
+
         elif status == ExecutionStatus.EXCEPTION:
             # Invalid test case - exception in both backends
             feedbk = message
@@ -244,5 +243,5 @@ class FuzzingCore:
         # Return unified status information
         return {
             "status": status,  # ExecutionStatus enum type
-            "feedback": feedback_data
+            "feedback": feedback_data,
         }
