@@ -31,6 +31,28 @@ def to_cuda(model: torch.nn.Module, inputs: list[torch.Tensor]):
     return model_cuda, new_inputs
 
 
+# Convert various attributes to MPS
+def to_mps(model: torch.nn.Module, inputs: list[torch.Tensor]):
+    import torch
+
+    torch.manual_seed(0)
+    model_mps = copy.deepcopy(model)
+    model_mps.to("mps")
+    for attr in dir(model_mps):
+        if isinstance(getattr(model_mps, attr), torch.Tensor):
+            setattr(model_mps, attr, getattr(model_mps, attr).to("mps"))
+
+    new_inputs = []
+    to_kwargs = {"device": "mps"}
+    for x in inputs:
+        if not isinstance(x, torch.Tensor):
+            new_inputs += [x]
+            continue
+        new_inputs.append(x.clone().to(**to_kwargs))
+
+    return model_mps, new_inputs
+
+
 def is_equal_tensor(
     lib,
     x: Union[torch.Tensor, tensorflow.constant],

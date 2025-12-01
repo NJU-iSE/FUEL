@@ -4,7 +4,7 @@ from typing import List
 
 import torch
 
-from ..exec.utils import to_cuda
+from ..exec.utils import to_cuda, to_mps
 from .common import record_exception, torch_save
 from .oracle import OracleType
 
@@ -23,6 +23,13 @@ def main(diff_type, code, res_file, version, filename, err_file, total_errs_file
     elif diff_type == "cuda_compiler":
         try:
             model, inputs = to_cuda(model, inputs)
+        except Exception as e:
+            print(f"<-- {version}:Failed -->")
+            record_exception(e, version, filename, err_file, total_errs_file)
+            exit(OracleType.BASE_EXCEPTION)
+    elif diff_type == "mps_compiler":
+        try:
+            model, inputs = to_mps(model, inputs)
         except Exception as e:
             print(f"<-- {version}:Failed -->")
             record_exception(e, version, filename, err_file, total_errs_file)

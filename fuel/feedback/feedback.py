@@ -38,7 +38,14 @@ class FeedBack:
     def init(cls, lib, diff_type):
         if diff_type == "hardware":
             cls.base_version = "CPU"
-            cls.target_version = "CUDA"
+            import torch
+
+            if torch.cuda.is_available():
+                cls.target_version = "CUDA"
+            elif torch.backends.mps.is_available():
+                cls.target_version = "MPS"
+            else:
+                cls.target_version = "NONE"
         elif diff_type == "cpu_compiler":
             cls.base_version = "Eager(CPU)"
             cls.target_version = "Compiler(CPU)"

@@ -4,7 +4,7 @@ from typing import List
 
 import torch
 
-from ..exec.utils import to_cuda
+from ..exec.utils import to_cuda, to_mps
 from .common import record_exception, torch_save
 from .oracle import OracleType
 
@@ -20,7 +20,12 @@ def main(diff_type, code, res_file, version, filename, err_file, total_errs_file
     model.eval()
     if diff_type == "hardware":
         try:
-            model, inputs = to_cuda(model, inputs)
+            if torch.backends.mps.is_available():
+                model, inputs = to_mps(model, inputs)
+            elif torch.cuda.is_available():
+                model, inputs = to_cuda(model, inputs)
+            else:
+                pass
             print(f"<-- {version} transfer successfully -->")
         except Exception as e:
             print(f"<-- {version} transfer failed -->")
@@ -44,6 +49,14 @@ def main(diff_type, code, res_file, version, filename, err_file, total_errs_file
             print(f"<-- {version} transfer failed -->")
             record_exception(e, version, filename, err_file, total_errs_file)
             exit(OracleType.TRANSFER_EXCEPTION)
+    elif diff_type == "mps_compiler":
+        model, inputs = to_mps(model, inputs)
+        try:
+            model = torch.compile(model, dynamic=True)
+            print(f"<-- {version} transfer successfully -->")
+        except Exception as e:
+            print(f"<-- {version} transfer failed -->")
+            record_exception(e, version, filename, err_file, total_errs_file)
     else:
         raise ValueError(
             f"diff_type: hardware, cpu_compiler or cuda_compiler. Currently, diff_type: <{diff_type}>"
