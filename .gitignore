@@ -41,3 +41,6 @@ tests/
 *.png
 !assets/FUEL-logo.png
 .*coverage
+
+# uv
+uv.lock
