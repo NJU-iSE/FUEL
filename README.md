@@ -11,7 +11,7 @@
 
 ## 📋 Introduction
 
-**FUEL** (**F**eedback-driven f**U**zzing for d**E**ep **L**earning frameworks via LLMs) is an advanced deep learning (DL) framework fuzzing tool designed to detect bugs in mainstream DL frameworks such as [PyTorch](https://github.com/pytorch/pytorch) and [TensorFlow](https://github.com/tensorflow/tensorflow). FUEL combines the powerful **generation LLM** with the **analysis LLM** to fully leverage feedback information during the fuzzing loop, generating high-quality test cases to discover potential bugs in DL frameworks. Additionally, FUEL features a **feedback-aware simulated annealing** algorithm and **program self-repair** strategy, improving model _diversity_ and _validity_, respectively.
+**FUEL** (**F**eedback-driven f**U**zzing for d**E**ep **L**earning frameworks via LLMs) is an advanced deep learning (DL) framework fuzzing tool designed to detect bugs in mainstream DL frameworks such as [PyTorch](https://github.com/pytorch/pytorch) and [TensorFlow](https://github.com/tensorflow/tensorflow). FUEL combines the powerful **generation LLM** with the **analysis LLM** to fully leverage feedback information during the fuzzing loop, generating high-quality test cases to discover potential bugs in DL frameworks. Additionally, FUEL features a **feedback-aware simulated annealing** algorithm and **program self-repair** strategy, improving model *diversity* and *validity*, respectively.
 
 ## 🎯 Why FUEL?
 
