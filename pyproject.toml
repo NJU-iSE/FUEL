@@ -8,6 +8,7 @@ dependencies = [
     "astunparse>=1.6.3",
     "click>=8.2.1",
     "coverage>=7.8.1",
+    "httpx[socks]>=0.28.1",
     "huggingface-hub>=0.31.4",
     "loguru>=0.7.3",
     "matplotlib>=3.10.3",

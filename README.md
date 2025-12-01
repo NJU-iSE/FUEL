@@ -11,7 +11,7 @@
 
 ## 📋 Introduction
 
-**FUEL** (**F**eedback-driven f**U**zzing for d**E**ep **L**earning frameworks via LLMs) is an advanced deep learning (DL) framework fuzzing tool designed to detect bugs in mainstream DL frameworks such as [PyTorch](https://github.com/pytorch/pytorch) and [TensorFlow](https://github.com/tensorflow/tensorflow). FUEL combines the powerful **generation LLM** with the **analysis LLM** to fully leverage feedback information during the fuzzing loop, generating high-quality test cases to discover potential bugs in DL frameworks. Additionally, FUEL features a **feedback-aware simulated annealing** algorithm and **program self-repair** strategy, improving model *diversity* and *validity*, respectively.
+**FUEL** (**F**eedback-driven f**U**zzing for d**E**ep **L**earning frameworks via LLMs) is an advanced deep learning (DL) framework fuzzing tool designed to detect bugs in mainstream DL frameworks such as [PyTorch](https://github.com/pytorch/pytorch) and [TensorFlow](https://github.com/tensorflow/tensorflow). FUEL combines the powerful **generation LLM** with the **analysis LLM** to fully leverage feedback information during the fuzzing loop, generating high-quality test cases to discover potential bugs in DL frameworks. Additionally, FUEL features a **feedback-aware simulated annealing** algorithm and **program self-repair** strategy, improving model _diversity_ and _validity_, respectively.
 
 ## 🎯 Why FUEL?
 
@@ -105,7 +105,10 @@ When fuzzing the systems under tests (SUTs), we use the nightly version, in orde
 Here we use CUDA 12.6 as an example. Please install the nightly version based on your CUDA version. You can get the corresponding commands from https://pytorch.org/
 
 ```shell
+# on CUDA
 UV_HTTP_TIMEOUT=180 uv pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu126
+# on MPS
+UV_HTTP_TIMEOUT=180 uv pip install --pre torch torchvision --index-url https://download.pytorch.org/whl/nightly/cpu
 ```
 
 #### 🔑 create API key
@@ -116,7 +119,7 @@ For the below command, you should replace `[YOUR_API_KEY]` with your own DeepSee
 
 ```shell
 key="[YOUR_API_KEY]"
-echo "$key" > ./config/deepseek-key.txt
+echo "$key" > ./model_config/deepseek-key.txt
 ```
 
 #### 🏃 Start fuzzing

@@ -14,7 +14,6 @@ except ImportError:
     logger.warning(
         "currently, vllm still can't be install with nightly pytorch, refer to https://github.com/vllm-project/vllm/issues/9180"
     )
-import os
 
 from transformers import (
     AutoTokenizer,
