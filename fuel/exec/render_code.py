@@ -49,6 +49,7 @@ class CodeParser:
             self.is_input = lambda x: torch.is_tensor(x)
             self.imports = (
                 "import os\nimport torch\nimport torch.nn.functional as F\nimport torch.nn as nn\n"
+                "import torch.nn.init as init\n"  # Add init module for weight initialization functions
                 "import numpy as np\nfrom torch.autograd import Variable\nimport math\n"
                 "import torch as th\nimport torch.linalg as la\n"
                 "from torch.nn import Parameter\n"
@@ -176,6 +177,10 @@ class CodeParser:
                                     )
 
                         # test whether is tensor
+                        # Skip if init_code references the class (likely model instantiation, not input tensor)
+                        if class_name and class_name in init_code:
+                            continue
+                            
                         try:
                             namespace = globals().copy()
                             if self.lib_name == "tensorflow":
@@ -184,10 +189,18 @@ class CodeParser:
                                 namespace["tf"] = tf
                             elif self.lib_name == "pytorch":
                                 import torch  # noqa
+                                import torch.nn as nn  # noqa
 
                                 namespace["torch"] = torch
+                                namespace["nn"] = nn
                             else:
                                 raise Exception("Unsupported library")
+                            
+                            # Add class definition to namespace if it exists
+                            if class_name and class_code:
+                                # Execute class definition first
+                                exec(class_code, namespace)
+                            
                             # logger.debug(f"init_code: {init_code}")
                             exec(init_code, namespace)
                             if self.is_input(eval(tgt, namespace)):
@@ -261,7 +274,8 @@ class CodeParser:
 
 def get_rendered_code(lib: str, code: str) -> str:
     CODE_PARSER = CodeParser(lib_name=f"{lib}")
-    code = code.replace(".to('cuda')", "").replace(".cuda()", "")
+    # @SHAOYU: preprocess some format issue of the code
+    code = code.replace(".to('cuda')", "").replace(".cuda()", "").replace("```", "")
     render_code, inputs, input_init_code = CODE_PARSER.split_func_tensor(code)
     imports = CODE_PARSER.imports
     if len(inputs) == 0:

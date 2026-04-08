@@ -49,7 +49,7 @@ class RemoteModel(Model):
 
         self.config = config
         # Add timeout setting support
-        timeout = self.config.get("timeout", 30)  # Default 30 seconds timeout
+        timeout = self.config.get("timeout", 60)  # Default 60 seconds timeout
 
         self.client = OpenAI(
             api_key=Path(self.config["key_file"]).read_text().strip(),
@@ -97,20 +97,20 @@ class RemoteModel(Model):
             {"role": "user", "content": f"{prompt}"},
         ]
 
-        # @SHAOYU: Different LLM API service providers have different machenism to be forced to generate code.
+        # FIXME@SHAOYU: Different LLM API service providers have different machenism to be forced to generate code.
         # We use different processing ways for different providers.
         if code_gen:
             if "deepseek" in self.config["model"]:
                 messages.append(
-                    {"role": "assistant", "content": "```python\n", "prefix": True}
-                )
+                        {"role": "assistant", "content": "```python\n", "prefix": True}
+                    )
             elif "kimi" in self.config["model"]:
                 messages.append(
                     {"role": "assistant", "content": "```python\n", "partial": True}
                 )
             else:
-                raise NotImplementedError(
-                    f"Unsupported RemoteModel: {self.config['model']}"
+                messages.append(
+                    {"role": "assistant", "content": "please only ouput Python code, no other text"}
                 )
 
         try:
@@ -119,7 +119,7 @@ class RemoteModel(Model):
                 messages=messages,
                 temperature=self.config["temperature"],
                 max_tokens=self.config["max_tokens"],
-                stop=["```"] if code_gen else None,
+                # stop=self.config["stop"] if code_gen else None,
             )
 
             gen_text = response.choices[0].message.content

@@ -1,0 +1,21 @@
+method: "remote"
+config:
+  model: "gpt-5" # @SHAOYU: model name is provided by your API server
+  url: "https://api.gptsapi.net/v1"  # @SHAOYU: similar with above
+  key_file: "model_config/gpt-key.txt"
+  retry_times: 5  # retry times used to handle the unstable API service
+  timeout: 60  # timeout setting (seconds)
+  frequency_penalty: 2  # range from [-2,2]. if set > 0, decreasing the model's likelihood to repeat the same line verbatim.
+  max_tokens: 4096  # the max length of the output (Beta maximum 8192)
+  presence_penalty: 2  # range from [-2,2]. if set > 0, increasing the model's likelihood to talk about new topics.
+  response_format: # another type is json
+    type: "text"
+  stop: None  # can be set to `String` or `List`. When meeting these words. API would stop to analyze more tokens.
+  stream: false
+  stream_options: null
+  temperature: 1
+  top_p: 1  # An alternative to sampling with temperature, called nucleus sampling. We generally recommend altering this or `temperature` but not both
+  tools: null  # A list of tools the model may call.
+  tool_choice: "none"
+  logprobs: false
+  top_logprobs: null

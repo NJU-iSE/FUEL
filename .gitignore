@@ -41,6 +41,10 @@ tests/
 *.png
 !assets/FUEL-logo.png
 .*coverage
+coverage.*
 
 # uv
 uv.lock
+
+# codex
+.codex
