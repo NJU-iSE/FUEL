@@ -274,7 +274,8 @@ class CodeParser:
 
 def get_rendered_code(lib: str, code: str) -> str:
     CODE_PARSER = CodeParser(lib_name=f"{lib}")
-    code = code.replace(".to('cuda')", "").replace(".cuda()", "")
+    # @SHAOYU: preprocess some format issue of the code
+    code = code.replace(".to('cuda')", "").replace(".cuda()", "").replace("```", "")
     render_code, inputs, input_init_code = CODE_PARSER.split_func_tensor(code)
     imports = CODE_PARSER.imports
     if len(inputs) == 0:

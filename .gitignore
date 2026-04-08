@@ -45,3 +45,6 @@ coverage.*
 
 # uv
 uv.lock
+
+# codex
+.codex
