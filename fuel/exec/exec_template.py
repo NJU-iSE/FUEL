@@ -6,20 +6,18 @@ from ..exec.render_code import get_rendered_code
 from ..exec.utils import is_equal_tensor
 from ..feedback.feedback import FeedBack
 from ..utils.Filer import File
-from ..utils.util import eliminate_imports
+from ..utils.util import extract_model_code
 
 
 def exec_template(
     code,
-) -> None:  # TODO@SHAOYU: Add support for diff testing on different devices
+) -> str:  # TODO@SHAOYU: Add support for diff testing on different devices
     # Before execution, the code is unknown.
     FeedBack.feedback_code = OracleType.UNKNOWN
     FeedBack.has_bug = FeedBack.has_exception = False
     try:
         File.rendered_code = get_rendered_code(FeedBack.lib, code)
-        File.eliminated_code = eliminate_imports(
-            File.rendered_code
-        )  # FIXME@SHAOYU: It seems that we don't use eliminated code. If it is legacy, we should delete it.
+        extracted_model_code = extract_model_code(File.rendered_code)
     except Exception as e:
         exception = str(e)
         # situation1: If there is a syntax error in the code, it is deemed an invalid model.
@@ -36,7 +34,7 @@ def exec_template(
         logger.error("<--------------- Syntax error in the code. --------------->")
         FeedBack.feedback_code = OracleType.SYNTAX_ERROR
         File.write_file(File.fail_file, File.cur_filename)
-        return
+        return code
 
     File.write_file(File.tmp_py, File.rendered_code, "w")
     base_code, target_code = DiffTesting.testing()
@@ -206,3 +204,4 @@ def exec_template(
             f"\t\t{exception}",
             "w",
         )
+    return extracted_model_code

@@ -190,7 +190,7 @@ def run_fuzz(
 
     while FeedBack.cur_round < max_round:
         # Execute single round test
-        file_path = fuzzing_core.execute_single_round(
+        file_path, extracted_model_code = fuzzing_core.execute_single_round(
             feedback_data, heuristic_instance, op_nums, diff_type
         )
 
@@ -198,7 +198,7 @@ def run_fuzz(
         flag = fuzzing_core.handle_execution_results(file_path, flag)
 
         # Process feedback
-        feedback_data = fuzzing_core.process_feedback(file_path)
+        feedback_data = fuzzing_core.process_feedback(file_path, extracted_model_code)
 
         # Increment round
         FeedBack.cur_round += 1

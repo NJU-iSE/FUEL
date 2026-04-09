@@ -74,11 +74,12 @@ class FuzzingCore:
             prompt=gen_prompt,
         )
 
+        previous_code = feedback_data.get("feedback", {}).get("code", "")
         # Write analysis logs
         File.write_file(
             File.als_file,
             f"""-------------Current analysis file is {File.cur_filename} -------------
-                                                              \rCode follows up: \n{File.eliminated_code}
+                                                              \rCode follows up: \n{previous_code}
                                                               \rAnalysis text follows up:\n{als_res}
                                                               \n""",
         )
@@ -90,9 +91,9 @@ class FuzzingCore:
 
         # Execute differential testing
         DiffTesting.diff_type = diff_type
-        exec_template(code)
+        extracted_model_code = exec_template(code)
 
-        return file_path
+        return file_path, extracted_model_code
 
     def handle_execution_results(self, file_path, flag):
         """Handle execution results and fix logic"""
@@ -142,7 +143,7 @@ class FuzzingCore:
 
         return flag
 
-    def process_feedback(self, file_path):
+    def process_feedback(self, file_path, extracted_model_code):
         """Process feedback and coverage based on execution status
 
         Handles different execution statuses:
@@ -151,7 +152,7 @@ class FuzzingCore:
         - EXCEPTION: Record invalid test case (exception in both backends)
         """
         logger.info(f"<-- After exec, current filename is: {file_path} -->")
-        File.write_file(file_path, File.eliminated_code)
+        File.write_file(file_path, extracted_model_code)
 
         # Get execution status
         status, message = FeedBack.get_status()
@@ -169,7 +170,7 @@ class FuzzingCore:
                 FeedBack.feedback_code = OracleType.SUCCESS_WITH_NEWCOV
 
             feedback_data = {
-                "code": File.eliminated_code,
+                "code": extracted_model_code,
                 "coverage": feedbk,
             }
 
@@ -198,7 +199,7 @@ class FuzzingCore:
             # Oracle violation - potential framework bug
             feedbk = message
             feedback_data = {
-                "code": File.eliminated_code,
+                "code": extracted_model_code,
                 "bug": feedbk,
             }
             logger.warning("Oracle violation detected - treating as potential bug")
@@ -218,7 +219,7 @@ class FuzzingCore:
             # Invalid test case - exception in both backends
             feedbk = message
             feedback_data = {
-                "code": File.eliminated_code,
+                "code": extracted_model_code,
                 "exception": feedbk,
             }
             logger.info("Exception in both backends - treating as invalid test")
@@ -234,7 +235,6 @@ class FuzzingCore:
                 logger.success("execute successfully\n")
                 # logger.exception(f"The feedback follows up: \n{feedbk}\n")
 
-        # logger.debug(f"The code follows up: \n\n{File.eliminated_code}\n")
         logger.info(
             f"fix total: {FeedBack.fix_success_times + FeedBack.fix_fail_times},success:{FeedBack.fix_success_times}\n"
         )
