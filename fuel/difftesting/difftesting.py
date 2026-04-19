@@ -1,4 +1,5 @@
 import subprocess as sp
+import sys
 from typing import Tuple
 
 from ..feedback.feedback import FeedBack
@@ -32,7 +33,7 @@ class DiffTesting:
             FeedBack.base_version if testing_type == "base" else FeedBack.target_version
         )
         return [
-            "python",
+            sys.executable,
             "-m",
             "coverage",
             "run",

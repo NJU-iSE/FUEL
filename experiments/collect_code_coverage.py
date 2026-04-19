@@ -5,6 +5,7 @@ import json
 import os
 import re
 import subprocess as sp
+import sys
 
 import matplotlib.pyplot as plt
 from tqdm import tqdm
@@ -148,7 +149,7 @@ def coverage_report(
         write_pyfile(tmp_pyfile, py_code)
         process = sp.Popen(
             [
-                "python",
+                sys.executable,
                 "-m",
                 "coverage",
                 "run",
