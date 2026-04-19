@@ -22,7 +22,6 @@ class _SimpleFileManager:
         # Runtime state variables
         self.cur_filename = ""
         self.rendered_code = ""
-        self.eliminated_code = ""
 
         # Initialize directories and file paths
         self._setup_directories()
@@ -168,7 +167,7 @@ class FileMeta(type):
         """Set attribute on instance if it is an instance attribute."""
         if hasattr(cls, "_instance") and cls._instance and hasattr(cls._instance, name):
             # For runtime state attributes, set on instance
-            if name in ["cur_filename", "rendered_code", "eliminated_code"]:
+            if name in ["cur_filename", "rendered_code"]:
                 setattr(cls._instance, name, value)
                 return
         super().__setattr__(name, value)

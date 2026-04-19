@@ -6,20 +6,18 @@ from ..exec.render_code import get_rendered_code
 from ..exec.utils import is_equal_tensor
 from ..feedback.feedback import FeedBack
 from ..utils.Filer import File
-from ..utils.util import eliminate_imports
+from ..utils.util import extract_model_code
 
 
 def exec_template(
     code,
-) -> None:  # TODO@SHAOYU: Add support for diff testing on different devices
+) -> str:  # TODO@SHAOYU: Add support for diff testing on different devices
     # Before execution, the code is unknown.
     FeedBack.feedback_code = OracleType.UNKNOWN
     FeedBack.has_bug = FeedBack.has_exception = False
     try:
         File.rendered_code = get_rendered_code(FeedBack.lib, code)
-        File.eliminated_code = eliminate_imports(
-            File.rendered_code
-        )  # FIXME@SHAOYU: It seems that we don't use eliminated code. If it is legacy, we should delete it.
+        extracted_model_code = extract_model_code(File.rendered_code)
     except Exception as e:
         exception = str(e)
         # situation1: If there is a syntax error in the code, it is deemed an invalid model.
@@ -36,7 +34,7 @@ def exec_template(
         logger.error("<--------------- Syntax error in the code. --------------->")
         FeedBack.feedback_code = OracleType.SYNTAX_ERROR
         File.write_file(File.fail_file, File.cur_filename)
-        return
+        return code
 
     File.write_file(File.tmp_py, File.rendered_code, "w")
     base_code, target_code = DiffTesting.testing()
@@ -52,10 +50,13 @@ def exec_template(
     if base_code == OracleType.BASE_SUCCESS:
         if target_code == OracleType.TRANSFER_EXCEPTION:
             final_code = OracleType.TRANSFER_EXCEPTION
+            File.write_file(
+                File.validate_file,
+                f"<-- WARNING: {FeedBack.base_version}:SUCCESS, {FeedBack.target_version}:TRANSFER_ERROR  -->",
+            )
 
         elif target_code == OracleType.TARGET_EXCEPTION:
             final_code = OracleType.TARGET_EXCEPTION
-            FeedBack.has_exception = True
             File.write_file(
                 File.validate_file,
                 f"<-- WARNING: {FeedBack.base_version}:SUCCESS, {FeedBack.target_version}:ERROR  -->",
@@ -117,7 +118,12 @@ def exec_template(
                 File.success_file, f"Round {FeedBack.cur_round}:{File.cur_filename}"
             )
 
-        case OracleType.INCON | OracleType.TARGET_EXCEPTION | OracleType.MISALIGN:
+        case (
+            OracleType.INCON
+            | OracleType.TRANSFER_EXCEPTION
+            | OracleType.TARGET_EXCEPTION
+            | OracleType.MISALIGN
+        ):
             File.write_file(
                 File.fail_file, f"Round {FeedBack.cur_round}:{File.cur_filename}"
             )
@@ -126,7 +132,7 @@ def exec_template(
             )
             FeedBack.has_bug = True
 
-        case OracleType.BASE_EXCEPTION | OracleType.TRANSFER_EXCEPTION:
+        case OracleType.BASE_EXCEPTION:
             File.write_file(
                 File.fail_file, f"Round {FeedBack.cur_round}:{File.cur_filename}"
             )
@@ -136,6 +142,7 @@ def exec_template(
     # Exception error file init
     if FeedBack.feedback_code in (
         OracleType.INCON,
+        OracleType.TRANSFER_EXCEPTION,
         OracleType.TARGET_EXCEPTION,
         OracleType.MISALIGN,
     ):
@@ -177,6 +184,20 @@ def exec_template(
             "w",
         )
 
+    elif FeedBack.feedback_code == OracleType.TRANSFER_EXCEPTION:
+        File.write_file(
+            File.bug_report,
+            f"--------------【The code executes successfully in {FeedBack.base_version} mode but fails while preparing {FeedBack.target_version} mode.】--------------\n",
+        )
+
+        File.write_file(
+            File.err_file,
+            f"The code throws an exception during execution.\n"
+            f"\tThe code executes successfully in {FeedBack.base_version} mode but fails while preparing {FeedBack.target_version} mode.\n"
+            f"\t\t{exception}",
+            "w",
+        )
+
     elif FeedBack.feedback_code == OracleType.TARGET_EXCEPTION:
         File.write_file(
             File.bug_report,
@@ -206,3 +227,4 @@ def exec_template(
             f"\t\t{exception}",
             "w",
         )
+    return extracted_model_code

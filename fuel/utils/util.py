@@ -33,7 +33,7 @@ def extra_code_from_text(input_text):
         return input_text
 
 
-def eliminate_imports(code: str) -> str:
+def extract_model_code(code: str) -> str:
     # print(f"[debug] the code is \n{code}")
     match = re.search(r"class\s+\w+\s*\(.*?inputs\s*=\s*\[.*?\]", code, re.DOTALL)
     # print(f"[debug] after re match , the code is \n{match.group(0)}")
