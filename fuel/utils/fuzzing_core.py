@@ -101,20 +101,9 @@ class FuzzingCore:
         FeedBack.new_ops = []
 
         if FeedBack.has_bug:
-            if flag:
-                FeedBack.fix_total_times += 1
-                File.write_file(
-                    File.fix_file,
-                    f"<------ No.{FeedBack.fix_total_times}:{File.cur_filename} ------>",
-                )
-                flag = False
-                FeedBack.new_ops = FeedBack.cur_ops
-            else:
-                # Fix successful
-                File.write_file(
-                    File.fix_file, f"| Fix Successfully:{File.cur_filename}"
-                )
-                FeedBack.fix_success_times += 1
+            # Oracle violations should enter bug analysis directly instead of
+            # participating in the invalid-model repair loop.
+            if not flag:
                 flag = True
 
         elif FeedBack.has_exception:
