@@ -7,7 +7,7 @@ config:
   repetition_penalty: 1.05
   max_tokens: 4096
   dtype: "float16"  # @SHAOYU: using float32 because our GPU V100 not supports bfloat16, refer to https://github.com/vllm-project/vllm/issues/15235
-  gpu_numbers: 4  # @SHAOYU: We have 4 V100 GPUs
+  gpu_numbers: 2  # @SHAOYU: We have 2 V100 GPUs
   stop: [  # can be set to `String` or `List`. When meeting these words. API would stop to analyze more tokens.
     "<|endoftext|>",
     "###",
