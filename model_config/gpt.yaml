@@ -1,7 +1,7 @@
 method: "remote"
 config:
-  model: "gpt-5" # @SHAOYU: model name is provided by your API server
-  url: "https://api.gptsapi.net/v1"  # @SHAOYU: similar with above
+  model: "gpt-5.5" # @SHAOYU: model name is provided by your API server
+  url: "https://api.openai.com/v1"  # @SHAOYU: similar with above
   key_file: "model_config/gpt-key.txt"
   retry_times: 5  # retry times used to handle the unstable API service
   timeout: 60  # timeout setting (seconds)

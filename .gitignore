@@ -16,6 +16,7 @@ bug_repro.py
 exp.*
 paper/
 tmp_ysy/
+codex.yaml
 
 # linhaifeng
 lhf_testing/

@@ -125,9 +125,6 @@ def exec_template(
             | OracleType.MISALIGN
         ):
             File.write_file(
-                File.fail_file, f"Round {FeedBack.cur_round}:{File.cur_filename}"
-            )
-            File.write_file(
                 File.bug_file, f"Round {FeedBack.cur_round}:{File.cur_filename}"
             )
             FeedBack.has_bug = True

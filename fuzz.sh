@@ -10,14 +10,12 @@ unset ALL_PROXY
 # fuzzing pytorch with FASA and two server model
 python -m fuel.fuzz \
 --lib pytorch \
---als_model_config config/model/kimi.yaml \
---als_prompt_config config/als_prompt \
---gen_model_config config/model/kimi.yaml \
---gen_prompt_config config/gen_prompt \
+--als_model_config model_config/gpt.yaml \
+--gen_model_config model_config/gpt.yaml \
 run_fuzz \
 --heuristic FASA \
 --diff_type cpu_compiler \
---max_round 1000 \
+--max_round 100
 
 
 # ablations
