@@ -8,9 +8,15 @@ class Random:
             lines = f.readlines()
         self.left, self.right = left, right
         self.ops = [line.strip() for line in lines]
+        self.is_triton = any(
+            op.startswith("tl.") or op.startswith("triton.") for op in self.ops
+        )
 
     def get_ops(self) -> List[str]:
-        length = random.randint(self.left, self.right)
+        if self.is_triton:
+            length = random.randint(max(2, self.left), max(4, self.right))
+        else:
+            length = random.randint(self.left, self.right)
         return list(random.sample(self.ops, length))
 
 

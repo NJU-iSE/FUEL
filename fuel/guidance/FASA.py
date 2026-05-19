@@ -31,12 +31,15 @@ class FASA:
         self.Tmin = Tmin
         self.alpha = alpha
         self.select_numbers = 1
+        self.is_triton = False
         # The number of times the same ops encountered errors and bugs consecutively.
         self.cnt = 0
         with open(filename) as f:
             for op in f.readlines():
                 op = op.strip("\n")
                 self.ops[op] = Operator(op)
+                if op.startswith("tl.") or op.startswith("triton."):
+                    self.is_triton = True
 
     def get_ops(self) -> List[str]:
         if FeedBack.cur_ops:
@@ -57,7 +60,7 @@ class FASA:
                 f"----Fuzzing Iteration.{FeedBack.cur_round}----\n{content}\n",
             )
         # init the parameter
-        self.select_numbers = random.randint(1, 3)
+        self.select_numbers = random.randint(2, 4) if self.is_triton else random.randint(1, 3)
         T = self.T0
         Tmin = self.Tmin
         select_list = list(self.ops.keys())

@@ -142,6 +142,7 @@ class FuzzingCore:
         """
         logger.info(f"<-- After exec, current filename is: {file_path} -->")
         File.write_file(file_path, extracted_model_code)
+        FeedBack.record_triton_summary(extracted_model_code)
 
         # Get execution status
         status, message = FeedBack.get_status()

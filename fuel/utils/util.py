@@ -1,3 +1,4 @@
+import ast
 import re
 from os import PathLike
 from typing import Union
@@ -42,6 +43,90 @@ def extract_model_code(code: str) -> str:
     else:
         print("[debug] somthing is wrong")
         return code
+
+
+def summarize_triton_code(code: str) -> str:
+    try:
+        tree = ast.parse(code)
+    except Exception:
+        return "unparseable triton test"
+
+    kernel_count = 0
+    tl_ops = set()
+    has_reduction = False
+    has_dot = False
+    has_where = False
+    has_broadcast = False
+    has_2d_indexing = False
+    has_multiple_kernels = False
+    uses_float64 = False
+    input_count = 0
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef):
+            for deco in node.decorator_list:
+                if (
+                    isinstance(deco, ast.Attribute)
+                    and isinstance(deco.value, ast.Name)
+                    and deco.value.id == "triton"
+                    and deco.attr == "jit"
+                ):
+                    kernel_count += 1
+        elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+            if isinstance(node.func.value, ast.Name) and node.func.value.id == "tl":
+                op_name = f"tl.{node.func.attr}"
+                tl_ops.add(op_name)
+                if node.func.attr in {"sum", "max", "min"}:
+                    has_reduction = True
+                if node.func.attr == "dot":
+                    has_dot = True
+                if node.func.attr == "where":
+                    has_where = True
+                if node.func.attr in {"broadcast_to", "full", "zeros"}:
+                    has_broadcast = True
+        elif isinstance(node, ast.Attribute):
+            if (
+                isinstance(node.value, ast.Name)
+                and node.value.id == "tl"
+                and node.attr == "float64"
+            ):
+                uses_float64 = True
+        elif isinstance(node, ast.Subscript):
+            if isinstance(node.slice, ast.Tuple):
+                has_2d_indexing = True
+        elif isinstance(node, ast.Assign):
+            if any(
+                isinstance(target, ast.Name) and target.id == "inputs"
+                for target in node.targets
+            ):
+                if isinstance(node.value, ast.List):
+                    input_count = len(node.value.elts)
+
+    has_multiple_kernels = kernel_count > 1
+    op_list = ", ".join(sorted(tl_ops)[:8]) if tl_ops else "no tl ops detected"
+
+    features = []
+    if has_reduction:
+        features.append("reduction")
+    if has_dot:
+        features.append("dot")
+    if has_where:
+        features.append("predicate")
+    if has_broadcast:
+        features.append("broadcast")
+    if has_2d_indexing:
+        features.append("2d-tile")
+    if uses_float64:
+        features.append("fp64")
+    if has_multiple_kernels:
+        features.append("multi-kernel")
+    if not features:
+        features.append("elementwise")
+
+    return (
+        f"{kernel_count} kernel(s); inputs={input_count}; features={', '.join(features)}; "
+        f"ops={op_list}"
+    )
 
 
 def hour_to_second(time: str):

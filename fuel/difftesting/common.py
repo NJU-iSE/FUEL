@@ -17,11 +17,22 @@ def record_exception(exception, backend, filename, err_file, total_errs_file):
 
 
 def torch_save(res, res_file):
+    if isinstance(res, tuple):
+        res = list(res)
+    if isinstance(res, list):
+        res = [
+            item.to(torch.float32)
+            if torch.is_tensor(item) and item.dtype == torch.bool
+            else item
+            for item in res
+        ]
+        torch.save(res, res_file)
+        return
     if res is None:
         res = torch.Tensor([0])
     if not torch.is_tensor(res):
         try:
-            torch.tensor(res)
+            res = torch.tensor(res)
         except Exception:
             res = torch.tensor([0])
     res = res.to(torch.float32) if res.dtype == torch.bool else res

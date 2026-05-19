@@ -17,7 +17,10 @@ def exec_template(
     FeedBack.has_bug = FeedBack.has_exception = False
     try:
         File.rendered_code = get_rendered_code(FeedBack.lib, code)
-        extracted_model_code = extract_model_code(File.rendered_code)
+        if FeedBack.lib == "triton":
+            extracted_model_code = File.rendered_code
+        else:
+            extracted_model_code = extract_model_code(File.rendered_code)
     except Exception as e:
         exception = str(e)
         # situation1: If there is a syntax error in the code, it is deemed an invalid model.

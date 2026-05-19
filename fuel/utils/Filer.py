@@ -89,6 +89,10 @@ class _SimpleFileManager:
             import tensorflow as tf
 
             lib_path = os.path.dirname(tf.__file__)
+        elif self.lib == "triton":
+            import triton
+
+            lib_path = os.path.dirname(triton.__file__)
         else:
             raise ValueError(f"Invalid library name: {self.lib}")
 

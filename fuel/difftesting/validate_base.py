@@ -13,10 +13,42 @@ model: torch.nn.Module
 inputs: List[torch.tensor]
 
 
-def main(diff_type, code, res_file, version, filename, err_file, total_errs_file, lib):
+def exec_code(code, code_file):
+    if code_file:
+        with open(code_file, encoding="utf-8") as f:
+            code = f.read()
+        exec(compile(code, code_file, "exec"), globals())
+    else:
+        exec(code, globals())
+
+
+def main(
+    diff_type,
+    code,
+    code_file,
+    res_file,
+    version,
+    filename,
+    err_file,
+    total_errs_file,
+    lib,
+):
     global model, inputs
     torch.manual_seed(0)
-    exec(code, globals())
+    if lib == "triton":
+        os.environ["TRITON_INTERPRET"] = "1"
+        try:
+            exec_code(code, code_file)
+            res = triton_impl(*inputs)
+            torch_save(res, res_file)
+            print(f"<-- {version}:Succeed -->")
+            exit(OracleType.BASE_SUCCESS)
+        except Exception as e:
+            print(f"<-- {version}:Failed -->")
+            record_exception(e, version, filename, err_file, total_errs_file)
+            exit(OracleType.BASE_EXCEPTION)
+
+    exec_code(code, code_file)
     model.eval()
     if diff_type == "hardware" or diff_type == "cpu_compiler":
         pass
@@ -54,6 +86,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--diff_type", type=str, default="hardware")
     parser.add_argument("--code", type=str, default="import torch\n")
+    parser.add_argument("--code_file", type=str, default="")
     parser.add_argument("--res_file", type=str, default="")
     parser.add_argument("--version", type=str, default="")
     parser.add_argument("--lib", type=str, default="")
@@ -66,6 +99,7 @@ if __name__ == "__main__":
     main(
         args.diff_type,
         args.code,
+        args.code_file,
         args.res_file,
         args.version,
         args.filename,

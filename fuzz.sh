@@ -1,11 +1,11 @@
 #!/bin/bash
 # unset proxy settings (specified settings for deepseek)
-unset http_proxy
-unset https_proxy
-unset all_proxy
-unset HTTP_PROXY
-unset HTTPS_PROXY
-unset ALL_PROXY
+# unset http_proxy
+# unset https_proxy
+# unset all_proxy
+# unset HTTP_PROXY
+# unset HTTPS_PROXY
+# unset ALL_PROXY
 
 # fuzzing pytorch with FASA and two server model
 python -m fuel.fuzz \
@@ -33,3 +33,13 @@ run_fuzz \
 
 # fuzzing tensorflow with FASA and two server model
 # python fuel/fuzz.py --lib tensorflow run_fuzz --heuristic FASA
+
+#   fuzz triton
+#   python -m fuel.fuzz \
+#     --lib triton \
+#     --gen_model_config model_config/codex.yaml \
+#     --als_model_config model_config/codex.yaml \
+#     run_fuzz \
+#     --heuristic FASA \
+#     --op_set data/triton_operators.txt \
+#     --max_round 1000

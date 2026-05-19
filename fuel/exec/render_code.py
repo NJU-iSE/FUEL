@@ -273,6 +273,38 @@ class CodeParser:
 
 
 def get_rendered_code(lib: str, code: str) -> str:
+    if lib == "triton":
+        code = code.replace("```python", "").replace("```", "").strip()
+        tree = ast.parse(code)
+        imports = (
+            "import os\n"
+            "import math\n"
+            "import torch\n"
+            "import triton\n"
+            "import triton.language as tl\n"
+            "torch.manual_seed(0)\n"
+        )
+        has_impl = any(
+            isinstance(node, ast.FunctionDef) and node.name == "triton_impl"
+            for node in tree.body
+        )
+        has_inputs = any(
+            isinstance(node, ast.Assign)
+            and any(
+                isinstance(target, ast.Name) and target.id == "inputs"
+                for target in node.targets
+            )
+            for node in tree.body
+        )
+        if not has_impl or not has_inputs:
+            raise ValueError("Triton tests must define triton_impl(*inputs) and inputs")
+        code = "\n".join(
+            ast.unparse(node)
+            for node in tree.body
+            if not isinstance(node, (ast.Import, ast.ImportFrom))
+        )
+        return imports + "\n" + code + "\n"
+
     CODE_PARSER = CodeParser(lib_name=f"{lib}")
     # @SHAOYU: preprocess some format issue of the code
     code = code.replace(".to('cuda')", "").replace(".cuda()", "").replace("```", "")
