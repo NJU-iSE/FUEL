@@ -45,6 +45,7 @@ class DiffTesting:
             f"--version={version}",
             f"--diff_type={cls.diff_type}",
             f"--code={File.rendered_code}",
+            f"--code_file={File.tmp_py if File.lib == 'triton' else ''}",  # TODO@SHAOYU: in future, we should support code_file for pytorch
             f"--lib={File.lib}",
             f"--filename={File.cur_filename}",
             f"--err_file={File.err_file}",

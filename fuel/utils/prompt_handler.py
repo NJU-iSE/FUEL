@@ -146,6 +146,12 @@ class PromptHandler:
         # Simple string replacement - no need for re.escape on replacement text
         gen_prompt = gen_prompt.replace("{{als_res}}", als_text)
         gen_prompt = gen_prompt.replace("{{op_nums}}", str(op_nums))
+        gen_prompt = gen_prompt.replace(
+            "{{recent_kernels}}", FeedBack.get_recent_triton_summary_text()
+        )
+        gen_prompt = gen_prompt.replace(
+            "{{diversity_rules}}", self._get_diversity_rules()
+        )
 
         # Process heuristic algorithm related replacements
         if heuristic != "None" and heuristic is not None:
@@ -168,3 +174,16 @@ class PromptHandler:
                 )
 
         return gen_prompt
+
+    @staticmethod
+    def _get_diversity_rules() -> str:
+        if FeedBack.lib != "triton":
+            return "Keep the generated program different from the previous one."
+        return (
+            "Diversity goals:\n"
+            "1. Generate a legal Triton test first, then maximize structural novelty.\n"
+            "2. Prefer a single kernel test case and concentrate diversity inside that kernel unless the feedback explicitly asks otherwise.\n"
+            "3. Vary at least two axes per test: kernel family, indexing shape, dtype mix, mask pattern, tile shape, input layout, scalar broadcasting, arithmetic composition, or boundary condition.\n"
+            "4. Prefer uncommon but valid combinations such as non-contiguous inputs, mixed dtypes, 2D tiles, partial reductions, predicate-heavy code, gather-like access, or scalar-plus-tensor broadcasting.\n"
+            "5. Avoid near-duplicates created only by renaming variables or slightly changing constants."
+        )

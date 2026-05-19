@@ -7,6 +7,7 @@ from coverage import Coverage
 
 from ..difftesting.oracle import OracleType
 from ..utils.Filer import File
+from ..utils.util import summarize_triton_code
 from .execution_status import ExecutionStatus
 
 warnings.filterwarnings("ignore")
@@ -32,11 +33,16 @@ class FeedBack:
     # record success times and unconsistent times!
     success_times, cons_fail = 0, 0
     base_version, target_version = None, None
+    recent_triton_summaries = []
 
     # Feedback init!
     @classmethod
     def init(cls, lib, diff_type):
-        if diff_type == "hardware":
+        cls.recent_triton_summaries = []
+        if lib == "triton":
+            cls.base_version = "Triton Interpreter"
+            cls.target_version = "Triton JIT"
+        elif diff_type == "hardware":
             cls.base_version = "CPU"
             import torch
 
@@ -69,6 +75,11 @@ class FeedBack:
 
             cls.lib = "tensorflow"
             source_path = os.path.dirname(tf.__file__)
+        elif lib == "triton":
+            import triton
+
+            cls.lib = "triton"
+            source_path = os.path.dirname(triton.__file__)
         else:
             source_path = ""
             pass
@@ -90,6 +101,8 @@ class FeedBack:
                         filename = (
                             line.split("SF:")[1].strip().split("/tensorflow/")[-1]
                         )
+                    elif cls.lib == "triton":
+                        filename = line.split("SF:")[1].strip().split("/triton/")[-1]
                 elif line.startswith("DA:"):
                     data = line.strip("\n").split("DA:")[1].split(",")
                     try:
@@ -145,6 +158,8 @@ class FeedBack:
                     pyfile = filename.split("/torch/")[-1]
                 elif cls.lib == "tensorflow":
                     pyfile = filename.split("/tensorflow/")[-1]
+                elif cls.lib == "triton":
+                    pyfile = filename.split("/triton/")[-1]
                 line_sets = set(lines)
                 cls.cur_coverage[pyfile] = line_sets & cls.whole_coverage[pyfile]
 
@@ -225,7 +240,7 @@ class FeedBack:
         """
         Get different backend tensor results.
         """
-        if cls.lib == "pytorch":
+        if cls.lib in ("pytorch", "triton"):
             import torch
 
             if os.path.exists(File.res_base_file) and os.path.exists(
@@ -255,3 +270,21 @@ class FeedBack:
                 return res_eager, res_compiler
             else:
                 return tf.constant([]), tf.constant([])
+
+    @classmethod
+    def record_triton_summary(cls, code: str):
+        if cls.lib != "triton":
+            return
+        summary = summarize_triton_code(code)
+        cls.recent_triton_summaries.append(summary)
+        cls.recent_triton_summaries = cls.recent_triton_summaries[-8:]
+
+    @classmethod
+    def get_recent_triton_summary_text(cls) -> str:
+        if cls.lib != "triton" or not cls.recent_triton_summaries:
+            return "No recent Triton kernels are recorded yet."
+        lines = [
+            f"{idx + 1}. {summary}"
+            for idx, summary in enumerate(reversed(cls.recent_triton_summaries))
+        ]
+        return "\n".join(lines)

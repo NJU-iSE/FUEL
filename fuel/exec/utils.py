@@ -60,8 +60,26 @@ def is_equal_tensor(
     atol=1e-4,
     rtol=1e-4,
 ):
-    if lib == "pytorch":
+    if lib in ("pytorch", "triton"):
         import torch
+
+        if isinstance(x, (list, tuple)) or isinstance(y, (list, tuple)):
+            if not isinstance(x, type(y)) or len(x) != len(y):
+                return False, inf
+            max_diff = 0
+            for x_item, y_item in zip(x, y):
+                flag, diff = is_equal_tensor(lib, x_item, y_item, atol=atol, rtol=rtol)
+                if not flag:
+                    return False, diff
+                max_diff = max(max_diff, diff)
+            return True, max_diff
+
+        if not torch.is_tensor(x) or not torch.is_tensor(y):
+            try:
+                x = torch.tensor(x)
+                y = torch.tensor(y)
+            except Exception:
+                return False, inf
 
         if x.shape != y.shape:  # shape must match
             return False, inf

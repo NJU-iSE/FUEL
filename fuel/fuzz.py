@@ -25,14 +25,14 @@ ROOT_DIR = os.getcwd()
     "gen_model_config",
     "--gen_model_config",
     type=str,
-    default="model_config/deepseek.yaml",
+    default="model_config/gpt.yaml",
     help="Path to the generation model configuration file",
 )
 @click.option(
     "als_model_config",
     "--als_model_config",
     type=str,
-    default="model_config/deepseek.yaml",
+    default="model_config/gpt.yaml",
     help="Path to the analysis model configuration file",
 )
 @click.option(
@@ -149,15 +149,18 @@ def run_fuzz(
 ):
     """Execute fuzzing test"""
     lib = ctx.obj["lib"]
+    prompt_dir = ctx.obj["PROMPT_DIR"]
+    if lib == "triton" and prompt_dir == "prompts":
+        prompt_dir = "prompts_triton"
 
     # Load prompts from Markdown format
     # TODO: Support ablation studies (wo_heuristic) by using different prompt directories
     try:
-        gen_prompt_config, als_prompt_config = load_prompts(ctx.obj["PROMPT_DIR"])
+        gen_prompt_config, als_prompt_config = load_prompts(prompt_dir)
     except FileNotFoundError as e:
         logger.error(str(e))
         raise click.ClickException(
-            f"Prompts directory not found: {ctx.obj['PROMPT_DIR']}. "
+            f"Prompts directory not found: {prompt_dir}. "
             "Please ensure the prompts directory exists with Markdown templates."
         )
 

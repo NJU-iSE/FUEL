@@ -34,9 +34,9 @@ torch-exec/
 *whitefox*
 
 # Large files: output and results
-output/
-output_bk/
-results/
+output*
+tmp*
+results*
 tests/
 *.json
 *.png
